@@ -14,7 +14,7 @@ def part_one(input: str) -> int:
 
 def part_two(input: str) -> int:
     total = 0
-    for line in input.split("\n"):
+    for line in input.split():
         vals = [int(n) for n in line.split("x")]
         l, w, h = vals[0], vals[1], vals[2]
         total += min(2 * (l + w), 2 * (w + h), 2 * (h + l))

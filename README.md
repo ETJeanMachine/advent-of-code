@@ -1,5 +1,5 @@
 ```
-    ___       __                 __           ____   ______          __ 
+    ___       __                 __           ____   ______          __
    /   | ____/ /   _____  ____  / /_   ____  / __/  / ____/___  ____/ /__
   / /| |/ __  / | / / _ \/ __ \/ __/  / __ \/ /_   / /   / __ \/ __  / _ \
  / ___ / /_/ /| |/ /  __/ / / / /_   / /_/ / __/  / /___/ /_/ / /_/ /  __/
@@ -20,6 +20,6 @@ uv run -m {YEAR}.day-{DAY}
 Where `YEAR` is the year of the problem/folder the solution is in, and `DAY` is the date of the problem/name of the file you are running.
 
 ## Progress
-- 2015: 8 Stars
+- 2015: 10 Stars
 - 2022 (Not imported into this repo yet): 27 Stars
 - 2024 (Accessible [at this repo](https://github.com/ETJeanMachine/Advent-of-Code-2024), will be moved into here eventually): 4 Stars
