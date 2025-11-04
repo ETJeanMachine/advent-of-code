@@ -1,5 +1,5 @@
 import asyncio
-from util import get_input
+from util import main
 
 
 def part_one(input: str) -> int:
@@ -26,10 +26,4 @@ def part_two(input: str) -> int:
     return total
 
 
-async def main():
-    input = await get_input(2015, 2)
-    print(f"Part One: {part_one(input)}")
-    print(f"Part Two: {part_two(input)}")
-
-
-asyncio.run(main())
+asyncio.run(main(2015, 2, part_one, part_two))
