@@ -1,4 +1,11 @@
-# Advent of Code
+```
+    ___       __                 __           ____   ______          __ 
+   /   | ____/ /   _____  ____  / /_   ____  / __/  / ____/___  ____/ /__
+  / /| |/ __  / | / / _ \/ __ \/ __/  / __ \/ /_   / /   / __ \/ __  / _ \
+ / ___ / /_/ /| |/ /  __/ / / / /_   / /_/ / __/  / /___/ /_/ / /_/ /  __/
+/_/  |_\__,_/ |___/\___/_/ /_/\__/   \____/_/     \____/\____/\__,_/\___/
+```
+---
 
 This is a repository containing my code solutions for every years Advent of Code, dating back to 2015. This is something I began putting together in 2025 mostly out of boredom and an attempt to challenge myself by going back at these old problems and having a stab at them. I will also update this repository with future advent of codes in addition to working on previous year's ones.
 
