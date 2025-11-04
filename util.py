@@ -1,6 +1,7 @@
 import os
 import aiohttp
 from dotenv import load_dotenv
+from collections.abc import Callable
 
 _ = load_dotenv()
 
@@ -26,3 +27,13 @@ async def get_input(year: int, day: int) -> str:
             cookies=cookies if cookies else None,
         ) as response:
             return await response.text()
+
+
+PartFn = Callable[[str], int | str]
+
+
+async def main(year: int, day: int, part_one: PartFn, part_two: PartFn):
+    input = await get_input(year, day)
+    print(f"Solutions for {year} Day {day}:")
+    print(f"Part One: {part_one(input)}")
+    print(f"Part Two: {part_two(input)}")
