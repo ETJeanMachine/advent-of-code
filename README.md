@@ -11,3 +11,8 @@ uv run -m {YEAR}.day-{DAY}
 ```
 
 Where `YEAR` is the year of the problem/folder the solution is in, and `DAY` is the date of the problem/name of the file you are running.
+
+## Progress
+- 2015: 8 Stars
+- 2022 (Not imported into this repo yet): 27 Stars
+- 2024 (Accessible [at this repo](https://github.com/ETJeanMachine/Advent-of-Code-2024), will be moved into here eventually): 4 Stars
