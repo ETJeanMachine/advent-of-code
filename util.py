@@ -26,7 +26,9 @@ async def get_input(year: int, day: int) -> str:
             proxy=proxies.get("https") if proxies else None,
             cookies=cookies if cookies else None,
         ) as response:
-            return await response.text()
+            input = await response.text()
+            input = input.rstrip()
+            return input
 
 
 PartFn = Callable[[str], int | str]
