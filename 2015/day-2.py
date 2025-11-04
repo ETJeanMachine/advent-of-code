@@ -5,8 +5,6 @@ from util import main
 def part_one(input: str) -> int:
     total = 0
     for line in input.split("\n"):
-        if line == "":
-            break
         vals = [int(n) for n in line.split("x")]
         l, w, h = vals[0], vals[1], vals[2]
         total += (2 * l * w) + (2 * w * h) + (2 * h * l)
@@ -17,8 +15,6 @@ def part_one(input: str) -> int:
 def part_two(input: str) -> int:
     total = 0
     for line in input.split("\n"):
-        if line == "":
-            break
         vals = [int(n) for n in line.split("x")]
         l, w, h = vals[0], vals[1], vals[2]
         total += min(2 * (l + w), 2 * (w + h), 2 * (h + l))
