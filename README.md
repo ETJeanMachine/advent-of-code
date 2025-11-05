@@ -23,6 +23,6 @@ Where `YEAR` is the year of the problem/folder the solution is in, and `DAY` is 
 ## Progress
 - 2015: 14 Stars
 - 2022: 27 Stars
-  - 2022's day's one through fourteen part one were done privately in 2022; and then imported and confirmed to this repository.
+  - 2022's day's one through fourteen part one were done privately in 2022; and then imported and refactored to fit to this repository.
 - 2024: 4 Stars
   - 2024's first two day's were originally done in Rust, and can be accessed [at this repository](https://github.com/ETJeanMachine/Advent-of-Code-2024).
