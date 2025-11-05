@@ -22,4 +22,5 @@ Where `YEAR` is the year of the problem/folder the solution is in, and `DAY` is 
 ## Progress
 - 2015: 10 Stars
 - 2022 (Not imported into this repo yet): 27 Stars
-- 2024 (Accessible [at this repo](https://github.com/ETJeanMachine/Advent-of-Code-2024), will be moved into here eventually): 4 Stars
+- 2024: 4 Stars
+  - 2024 was originally done in Rust, and can be accessed [at this repository](https://github.com/ETJeanMachine/Advent-of-Code-2024).
