@@ -41,7 +41,21 @@ def part_one(input: str) -> int:
 
 
 def part_two(input: str) -> int:
-    return 0
+    lights = [[0 for _ in range(1000)] for _ in range(1000)]
+    instructions = parse_input(input)
+    for ins in instructions:
+        for x in range(ins[1][0], ins[2][0] + 1):
+            for y in range(ins[1][1], ins[2][1] + 1):
+                if ins[0] == "on":
+                    lights[x][y] += 1
+                elif ins[0] == "off":
+                    lights[x][y] -= 1 if lights[x][y] > 0 else 0
+                elif ins[0] == "toggle":
+                    lights[x][y] += 2
+    brightness = 0
+    for light_row in lights:
+        brightness += sum(light_row)
+    return brightness
 
 
 asyncio.run(main(2015, 6, part_one, part_two))
