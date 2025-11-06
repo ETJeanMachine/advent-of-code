@@ -1,7 +1,8 @@
 import os
+from collections.abc import Callable
+
 import aiohttp
 from dotenv import load_dotenv
-from collections.abc import Callable
 
 _ = load_dotenv()
 
@@ -31,7 +32,7 @@ async def get_input(year: int, day: int) -> str:
             return input
 
 
-PartFn = Callable[[str], int | str]
+PartFn = Callable[[str], int | float | str]
 
 
 async def main(year: int, day: int, part_one: PartFn, part_two: PartFn):
