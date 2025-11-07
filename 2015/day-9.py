@@ -6,7 +6,9 @@ from util import main
 Graph = dict[str, dict[str, int]]
 
 
-def held_karp(graph: Graph, source: str) -> tuple[list[str], int | float]:
+def held_karp(
+    graph: Graph, source: str, *, short=True
+) -> tuple[list[str], int | float]:
     n, N = len(graph), 1 << len(graph)
 
     nodes: list[str] = []
@@ -20,7 +22,8 @@ def held_karp(graph: Graph, source: str) -> tuple[list[str], int | float]:
             if i != j:
                 dists[i][j] = graph[nodes[i]][nodes[j]]
 
-    costs: list[list[float | int]] = [[math.inf] * n for _ in range(N)]
+    cost_val = math.inf if short else 0
+    costs: list[list[float | int]] = [[cost_val] * n for _ in range(N)]
     prevs: list[list[None | int]] = [[None] * n for _ in range(N)]
     costs[1][0] = 0
 
@@ -34,18 +37,28 @@ def held_karp(graph: Graph, source: str) -> tuple[list[str], int | float]:
             for k in range(n):
                 if prev_mask & (1 << k):
                     cost = costs[prev_mask][k] + dists[k][j]
-                    if cost < costs[mask][j]:
-                        costs[mask][j] = cost
-                        prevs[mask][j] = k
+                    if short:
+                        if cost < costs[mask][j]:
+                            costs[mask][j] = cost
+                            prevs[mask][j] = k
+                    else:
+                        if cost > costs[mask][j]:
+                            costs[mask][j] = cost
+                            prevs[mask][j] = k
 
     full_mask = (1 << n) - 1
-    min_cost = math.inf
+    ideal_cost = cost_val
     last = None
     for j in range(1, n):
         cost = costs[full_mask][j]
-        if cost < min_cost:
-            min_cost = cost
-            last = j
+        if short:
+            if cost < ideal_cost:
+                ideal_cost = cost
+                last = j
+        else:
+            if cost > ideal_cost:
+                ideal_cost = cost
+                last = j
 
     idx_path: list[int] = []
     mask = full_mask
@@ -61,7 +74,7 @@ def held_karp(graph: Graph, source: str) -> tuple[list[str], int | float]:
     for i in idx_path:
         path.append(nodes[i])
 
-    return path, min_cost
+    return path, ideal_cost
 
 
 def construct_graph(input: str) -> Graph:
@@ -97,8 +110,20 @@ def part_one(input: str) -> str:
     return results
 
 
-def part_two(input: str) -> int:
-    return 0
+def part_two(input: str) -> str:
+    graph = construct_graph(input)
+    max_cost = 0
+    max_path = []
+    for source in graph:
+        path, cost = held_karp(graph, source, short=False)
+        if cost > max_cost:
+            max_cost, max_path = cost, path
+    path_str = ""
+    for i in max_path:
+        path_str += f"{i} -> "
+    path_str = path_str.removesuffix(" -> ")
+    results = f"Path: {path_str}\n          Cost: {max_cost}"
+    return results
 
 
 asyncio.run(main(2015, 9, part_one, part_two))
