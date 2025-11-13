@@ -1,6 +1,6 @@
 import os
 import time
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 
 import aiohttp
 from dotenv import load_dotenv
@@ -45,5 +45,21 @@ async def main(year: int, day: int, part_one: PartFn, part_two: PartFn):
     print(f"Time One: {time_one / 1e6:.2f}ms\n")
     time_two = time.perf_counter_ns()
     print(f"Part Two: {part_two(input)}")
+    time_two = time.perf_counter_ns() - time_two
+    print(f"Time Two: {time_two / 1e6:.2f}ms")
+
+
+AsyncPartFn = Callable[[str], Awaitable[int | float | str]]
+
+
+async def async_main(year: int, day: int, part_one: AsyncPartFn, part_two: AsyncPartFn):
+    input = await get_input(year, day)
+    print(f"Solutions for {year} Day {day}:\n")
+    time_one = time.perf_counter_ns()
+    print(f"Part One: {await part_one(input)}")
+    time_one = time.perf_counter_ns() - time_one
+    print(f"Time One: {time_one / 1e6:.2f}ms\n")
+    time_two = time.perf_counter_ns()
+    print(f"Part Two: {await part_two(input)}")
     time_two = time.perf_counter_ns() - time_two
     print(f"Time Two: {time_two / 1e6:.2f}ms")
