@@ -4,6 +4,12 @@ import copy
 from util import main
 
 
+def print_grid(grid: list[list[int]]):
+    for row in grid:
+        lights = "".join(["#" if bool(x) else "." for x in row])
+        print(lights)
+
+
 def parse_input(input: str) -> list[list[int]]:
     grid: list[list[int]] = []
     for line in input.splitlines():
@@ -31,7 +37,7 @@ def animate(grid: list[list[int]]):
         neighbours = [
             (x - 1, y - 1),
             (x, y - 1),
-            (x, y - 1),
+            (x + 1, y - 1),
             (x - 1, y),
             (x + 1, y),
             (x - 1, y + 1),
@@ -39,19 +45,21 @@ def animate(grid: list[list[int]]):
             (x + 1, y + 1),
         ]
         neighbours = [
-            (x, y) for x, y in neighbours if x >= 0 and y >= 0 and x < 100 and y < 100
+            (x, y)
+            for x, y in neighbours
+            if x >= 0 and y >= 0 and x < len(grid) and y < len(grid)
         ]
         return neighbours
 
     next_grid = copy.deepcopy(grid)
-    for x in range(len(grid)):
-        for y in range(len(grid[x])):
-            n_lights = [grid[nx][ny] for nx, ny in neighbours(x, y)]
-            lit_neighbours = sum(n_lights)
-            if grid[x][y]:
-                next_grid[x][y] = int(lit_neighbours == 3 or lit_neighbours == 2)
+    for y in range(len(grid)):
+        for x in range(len(grid[y])):
+            n_lights = [grid[ny][nx] for nx, ny in neighbours(x, y)]
+            lit_count = sum(n_lights)
+            if grid[y][x]:
+                next_grid[y][x] = int(lit_count == 3 or lit_count == 2)
             else:
-                next_grid[x][y] = int(lit_neighbours == 3)
+                next_grid[y][x] = int(lit_count == 3)
     return next_grid
 
 
@@ -63,7 +71,15 @@ def part_one(input: str) -> int:
 
 
 def part_two(input: str) -> int:
-    return 0
+    grid = parse_input(input)
+    for _ in range(100):
+        grid = animate(grid)
+        # turn our corners back on
+        grid[0][0] = 1
+        grid[0][-1] = 1
+        grid[-1][0] = 1
+        grid[-1][-1] = 1
+    return count_on(grid)
 
 
 asyncio.run(main(2015, 18, part_one, part_two))
