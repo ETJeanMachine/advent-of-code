@@ -1,6 +1,7 @@
 import asyncio
 import re
 from dataclasses import dataclass
+from math import prod
 
 from util import main
 
@@ -18,7 +19,7 @@ def parse_input(input: str) -> dict[str, Ingredient]:
     ingredients: dict[str, Ingredient] = {}
     for line in input.splitlines():
         if match := re.match(
-            r"([A-Za-z]+):.+(-?\d+),.+(-?\d+),.+(-?\d+),.+(-?\d+).+.+(-?\d+)$", line
+            r"([A-Za-z]+):.+ (-?\d+),.+ (-?\d+),.+ (-?\d+),.+ (-?\d+),.+ (-?\d+)$", line
         ):
             groups = match.groups()
             ingredient = Ingredient(
@@ -33,13 +34,15 @@ def parse_input(input: str) -> dict[str, Ingredient]:
 
 
 def calculate_score(recipe: list[tuple[int, Ingredient]]) -> int:
-    capacity, durability, flavor, texture = 0, 0, 0, 0
+    scores = [0] * 4
     for tsps, ing in recipe:
-        capacity += tsps * ing.capacity
-        durability += tsps * ing.durability
-        flavor += tsps * ing.flavor
-        texture += tsps * ing.texture
-    return capacity * durability * flavor * texture
+        scores[0] += tsps * ing.capacity
+        scores[1] += tsps * ing.durability
+        scores[2] += tsps * ing.flavor
+        scores[3] += tsps * ing.texture
+    if min(scores) <= 0:
+        return 0
+    return prod(scores)
 
 
 def n_adds_to_x(n: int, x: int) -> list[list[int]]:
@@ -66,9 +69,6 @@ def part_one(input: str) -> int:
         recipe = list(zip(p, values))
         score = calculate_score(recipe)
         max_score = max(score, max_score)
-        if max_score == score:
-            print(f"new max score: {score}")
-            print(f"recipe: {p}")
     return max_score
 
 
