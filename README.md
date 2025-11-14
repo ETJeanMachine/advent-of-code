@@ -22,7 +22,7 @@ uv run -m {YEAR}.day-{DAY}
 Where `YEAR` is the year of the problem/folder the solution is in, and `DAY` is the date of the problem/name of the file you are running.
 
 ## Progress
-- 2015: 24 Stars
+- 2015: 30 Stars
 - 2022: 27 Stars
   - 2022's day's one through fourteen part one were done privately in 2022; and then imported and refactored to fit to this repository.
 - 2024: 4 Stars

@@ -48,7 +48,7 @@ def calculate_score(recipe: list[tuple[int, Ingredient]]) -> int:
 def n_adds_to_x(n: int, x: int) -> list[list[int]]:
     if n == 1:
         return [[x]]
-    perms = []
+    perms: list[list[int]] = []
     # we start at 1 because 0 will always multiply to a score
     # of 0
     for i in range(1, x + 1):
@@ -73,7 +73,24 @@ def part_one(input: str) -> int:
 
 
 def part_two(input: str) -> int:
-    return 0
+    ingredients = parse_input(input)
+    values = ingredients.values()
+    cals = [v.calories for v in values]
+    permutations = n_adds_to_x(4, 100)
+    p_copy = permutations.copy()
+    # culling our permutations such that we only accept values that add up to 500 calories
+    for p in permutations:
+        sum = 0
+        for i in range(len(p)):
+            sum += p[i] * cals[i]
+        if sum != 500:
+            p_copy.remove(p)
+    max_score = 0
+    for p in p_copy:
+        recipe = list(zip(p, values))
+        score = calculate_score(recipe)
+        max_score = max(score, max_score)
+    return max_score
 
 
 asyncio.run(main(2015, 15, part_one, part_two))
