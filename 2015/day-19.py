@@ -28,12 +28,15 @@ def part_one(input: str) -> int:
 
 # ill be totally honest. this is a modified bfs, but i have zero clue
 # why this works.
+# this runs in an infinite loop sometimes. other times it works!
+# i dont get it right now. but ill figure it out.
 def trace(replacements: dict[str, str], root: str, goal="e") -> int:
     def molecule_len(molecule: str) -> int:
         return len(re.findall(r"[A-Z][a-z]?", molecule))
 
     queue = heapdict.heapdict()
-    queue[(root, 0)] = molecule_len(root)
+    root_len = molecule_len(root)
+    queue[(root, 0)] = root_len
     curr_depth = -1
     visited: set[str] = set()
     visited.add(root)
@@ -54,7 +57,7 @@ def trace(replacements: dict[str, str], root: str, goal="e") -> int:
             n_len = molecule_len(n)
             if n not in visited:
                 visited.add(n)
-                queue[(n, depth + 1)] = n_len
+                queue[(n, depth + 1)] = (depth + 1) * (n_len - root_len)
     return 0
 
 
