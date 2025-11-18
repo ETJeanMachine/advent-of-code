@@ -1,7 +1,10 @@
 import asyncio
+import heapq
+import math
 import re
+from collections import defaultdict
 
-import heapdict
+from heapdict import heapdict
 
 from util import main
 
@@ -26,52 +29,50 @@ def part_one(input: str) -> int:
     return len(molecules)
 
 
-# ill be totally honest. this is a modified bfs, but i have zero clue
-# why this works.
-# this runs in an infinite loop sometimes. other times it works!
-# i dont get it right now. but ill figure it out.
-def trace(replacements: dict[str, str], root: str, goal="e") -> int:
-    def molecule_len(molecule: str) -> int:
-        return len(re.findall(r"[A-Z][a-z]?", molecule))
-
-    queue = heapdict.heapdict()
-    root_len = molecule_len(root)
-    queue[root] = (root_len, 0)
-    curr_depth = -1
-    visited: set[str] = set()
-    visited.add(root)
-    while len(queue) > 0:
-        curr, (_, depth) = queue.popitem()
-        depth = -depth
-        if depth > curr_depth:
-            curr_depth = depth
-            print(f"Depth: {curr_depth}, Visited: {len(visited)}")
-        if depth > 195:
-            pass
+def a_star(replacements: dict[str, str], root: str, goal="e"):
+    def neighbours(molecule: str):
         neighbours: set[str] = set()
-        for k in replacements.keys():
-            v = replacements[k]
-            for m in re.finditer(rf"({k})", curr):
+        for k, v in replacements.items():
+            for m in re.finditer(rf"({k})", molecule):
                 start, end = m.span()
-                repl = f"{curr[:start]}{v}{curr[end:]}"
+                repl = f"{molecule[:start]}{v}{molecule[end:]}"
                 neighbours.add(repl)
-            for m in re.finditer(rf"({v})", curr):
-                start, end = m.span()
-                repl = f"{curr[:start]}{k}{curr[end:]}"
-                if molecule_len(repl) < root_len:
-                    neighbours.add(repl)
-        for n in neighbours:
-            if n == goal:
-                return depth + 1
-            if n not in visited:
-                visited.add(n)
-                queue[n] = (molecule_len(n), -depth - 1)
-    return 0
+        return neighbours
+
+    # pretty shoddy heuristic that sometimes runs for farrrrr too long.
+    # should be improved.
+    def heuristic(molecule: str):
+        m_res = re.findall(r"[A-Z][a-z]?", molecule)
+        return len(m_res)
+
+    discovered = heapdict()
+    discovered[root] = heuristic(root)
+
+    came_from: dict[str, str] = {}
+
+    g_score: defaultdict[str, int | float] = defaultdict(lambda: math.inf)
+    g_score[root] = 0
+
+    while len(discovered) > 0:
+        curr, _ = discovered.popitem()
+        if curr == goal:
+            return g_score[curr]
+        for n in neighbours(curr):
+            ten_g_score = g_score[curr] + 1
+            if ten_g_score < g_score[n]:
+                came_from[n] = curr
+                g_score[n] = ten_g_score
+                discovered[n] = ten_g_score + heuristic(n)
+        pass
+
+    return None
 
 
-def part_two(input: str) -> int:
+def part_two(input: str) -> int | float:
     replacements, medicine = parse_input(input)
-    return trace(replacements, medicine)
+    if depth := a_star(replacements, medicine):
+        return depth
+    return 0
 
 
 asyncio.run(main(2015, 19, part_one, part_two))
