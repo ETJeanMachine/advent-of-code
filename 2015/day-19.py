@@ -36,15 +36,20 @@ def trace(replacements: dict[str, str], root: str, goal="e") -> int:
 
     queue = heapdict.heapdict()
     root_len = molecule_len(root)
+    goal_len = molecule_len(goal)
     queue[(root, 0)] = root_len
     curr_depth = -1
     visited: set[str] = set()
     visited.add(root)
     while len(queue) > 0:
-        (curr, depth), c_len = queue.popitem()
-        if depth > curr_depth:
+        (curr, depth), _ = queue.popitem()
+        if depth >= curr_depth:
             curr_depth = depth
             print(f"Depth: {curr_depth}, Visited: {len(visited)}")
+        else:
+            continue
+        if curr_depth == 190:
+            pass
         neighbours: set[str] = set()
         for k in replacements.keys():
             for m in re.finditer(rf"({k})", curr):
@@ -52,18 +57,21 @@ def trace(replacements: dict[str, str], root: str, goal="e") -> int:
                 repl = f"{curr[:start]}{replacements[k]}{curr[end:]}"
                 neighbours.add(repl)
         for n in neighbours:
-            if n == goal:
-                return depth + 1
             n_len = molecule_len(n)
+            n_depth = depth + 1
+            if n == goal:
+                return n_depth
             if n not in visited:
                 visited.add(n)
-                queue[(n, depth + 1)] = (depth + 1) * (n_len - root_len)
+                queue[(n, n_depth)] = n_len - goal_len
     return 0
 
 
 def part_two(input: str) -> int:
     replacements, medicine = parse_input(input)
-    return trace(replacements, medicine)
+    while (depth := trace(replacements, medicine)) == 0:
+        pass
+    return depth
 
 
 asyncio.run(main(2015, 19, part_one, part_two))
