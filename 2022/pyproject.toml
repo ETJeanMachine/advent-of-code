@@ -1,7 +1,7 @@
 [project]
-name = "advent-of-code"
+name = "advent-of-code-2022"
 version = "1.0.0"
-description = "Advent of code solutions monorepo"
+description = "Advent of Code Solutions for 2022"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -10,3 +10,7 @@ dependencies = [
     "heapdict>=1.0.1",
     "python-dotenv>=1.2.1",
 ]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
