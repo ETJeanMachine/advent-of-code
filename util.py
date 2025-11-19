@@ -48,9 +48,20 @@ async def main(
     async def run_part(n: int) -> tuple[int | float | str, int]:
         fn = part_one if n == 1 else part_two
         time_start = time.perf_counter_ns()
-        res = await fn(input) if inspect.iscoroutinefunction(fn) else fn(input)
+        res: int | float | str = (
+            await fn(input) if inspect.iscoroutinefunction(fn) else fn(input)
+        )  # pyright:ignore
         time_elapsed = time.perf_counter_ns() - time_start
-        return res, time_elapsed  # pyright:ignore
+        return res, time_elapsed
+
+    def format_time(t: int):
+        if t >= 6 * 10**9:
+            m = t // (60 * 10**9)
+            return f"{m}m:{(t % (60 * 10**9)) / 1e9:.2f}s"
+        elif t >= 10**9:
+            return f"{t / 1e9:.2f}s"
+        else:
+            return f"{t / 1e6:.2f}ms"
 
     async with asyncio.TaskGroup() as tg:
         task_one = tg.create_task(run_part(1))
@@ -60,6 +71,6 @@ async def main(
     res_two, time_two = task_two.result()
 
     print(f"Part One: {res_one}")
-    print(f"Time One: {time_one / 1e6:.2f}ms\n")
+    print(f"Time One: {format_time(time_one)}\n")
     print(f"Part Two: {res_two}")
-    print(f"Time Two: {time_two / 1e6:.2f}ms")
+    print(f"Time Two: {format_time(time_two)}")
