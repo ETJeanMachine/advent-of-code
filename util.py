@@ -55,7 +55,7 @@ async def main(
         return res, time_elapsed
 
     def format_time(t: int):
-        if t >= 6 * 10**9:
+        if t >= 60 * 10**9:
             m = t // (60 * 10**9)
             return f"{m}m:{(t % (60 * 10**9)) / 1e9:.2f}s"
         elif t >= 10**9:
