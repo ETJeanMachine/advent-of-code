@@ -85,7 +85,8 @@ def part_two(input: str) -> int:
                     p_damage = wv[1] + r1v[1] + r2v[1]
                     p_armor = av[1] + r1v[2] + r2v[2]
                     player = [100, p_damage, p_armor]
-                    boss = [int(x) for x in re.findall(r"\d+", input)]
+                    parsed_input: list[str] = re.findall(r"\d+", input)
+                    boss = [int(x) for x in parsed_input]
                     if not fight(player, boss):
                         loadout = [wk, ak, r1k, r2k]
                         max_gold = gold
