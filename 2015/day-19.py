@@ -1,5 +1,4 @@
 import asyncio
-import heapq
 import math
 import re
 from collections import defaultdict
