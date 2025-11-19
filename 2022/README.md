@@ -6,4 +6,4 @@ To run this project, you'll need [`uv`](https://docs.astral.sh/uv/) installed. O
 uv run -m solutions.day-{DAY}
 ```
 
-Where `YEAR` is the year of the problem/folder the solution is in, and `DAY` is the date of the problem/name of the file you are running.
+Where `DAY` is the date of the problem/name of the file you are running.
