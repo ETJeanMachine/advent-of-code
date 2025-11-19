@@ -2,7 +2,7 @@ import asyncio
 import re
 from dataclasses import dataclass
 
-from util import async_main
+from util import main
 
 
 @dataclass
@@ -89,4 +89,4 @@ async def part_two(input: str) -> int:
     return max_score
 
 
-asyncio.run(main=async_main(2015, 14, part_one, part_two))
+asyncio.run(main(2015, 14, part_one, part_two))

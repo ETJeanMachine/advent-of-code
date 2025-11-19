@@ -1,3 +1,5 @@
+import asyncio
+import inspect
 import os
 import time
 from collections.abc import Awaitable, Callable
@@ -34,32 +36,30 @@ async def get_input(year: int, day: int) -> str:
 
 
 PartFn = Callable[[str], int | float | str]
-
-
-async def main(year: int, day: int, part_one: PartFn, part_two: PartFn):
-    input = await get_input(year, day)
-    print(f"Solutions for {year} Day {day}:\n")
-    time_one = time.perf_counter_ns()
-    print(f"Part One: {part_one(input)}")
-    time_one = time.perf_counter_ns() - time_one
-    print(f"Time One: {time_one / 1e6:.2f}ms\n")
-    time_two = time.perf_counter_ns()
-    print(f"Part Two: {part_two(input)}")
-    time_two = time.perf_counter_ns() - time_two
-    print(f"Time Two: {time_two / 1e6:.2f}ms")
-
-
 AsyncPartFn = Callable[[str], Awaitable[int | float | str]]
 
 
-async def async_main(year: int, day: int, part_one: AsyncPartFn, part_two: AsyncPartFn):
+async def main(
+    year: int, day: int, part_one: PartFn | AsyncPartFn, part_two: PartFn | AsyncPartFn
+):
     input = await get_input(year, day)
     print(f"Solutions for {year} Day {day}:\n")
-    time_one = time.perf_counter_ns()
-    print(f"Part One: {await part_one(input)}")
-    time_one = time.perf_counter_ns() - time_one
+
+    async def run_part(n: int) -> tuple[int | float | str, int]:
+        fn = part_one if n == 1 else part_two
+        time_start = time.perf_counter_ns()
+        res = await fn(input) if inspect.iscoroutinefunction(fn) else fn(input)
+        time_elapsed = time.perf_counter_ns() - time_start
+        return res, time_elapsed  # pyright:ignore
+
+    async with asyncio.TaskGroup() as tg:
+        task_one = tg.create_task(run_part(1))
+        task_two = tg.create_task(run_part(2))
+
+    res_one, time_one = task_one.result()
+    res_two, time_two = task_two.result()
+
+    print(f"Part One: {res_one}")
     print(f"Time One: {time_one / 1e6:.2f}ms\n")
-    time_two = time.perf_counter_ns()
-    print(f"Part Two: {await part_two(input)}")
-    time_two = time.perf_counter_ns() - time_two
+    print(f"Part Two: {res_two}")
     print(f"Time Two: {time_two / 1e6:.2f}ms")
