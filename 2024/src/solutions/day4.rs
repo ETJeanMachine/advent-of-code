@@ -40,26 +40,14 @@ impl super::lib::Puzzle<usize> for Solver {
                         substrings.push(word_search[i..i + 4].iter().map(|v| v[k]).collect());
                     }
                 }
-                // Adding the diagonals
                 let (mut d1, mut d2) = (j, j + 3);
-                let diag_one: String = word_search[i..i + 4]
-                    .iter()
-                    .map(|e| {
-                        let res = e[d1];
-                        d1 += 1;
-                        res
-                    })
-                    .collect();
-                let diag_two: String = word_search[i..i + 4]
-                    .iter()
-                    .map(|e| {
-                        let res = e[d2];
-                        if d2 != 0 {
-                            d2 -= 1;
-                        }
-                        res
-                    })
-                    .collect();
+                let (mut diag_one, mut diag_two) = (String::new(), String::new());
+                word_search[i..i + 4].iter().for_each(|e| {
+                    diag_one.push(e[d1]);
+                    diag_two.push(e[d2]);
+                    d1 += 1;
+                    d2 -= if d2 != 0 { 1 } else { 0 };
+                });
                 substrings.extend(vec![diag_one, diag_two]);
                 total += substrings
                     .iter()
@@ -80,24 +68,13 @@ impl super::lib::Puzzle<usize> for Solver {
                 let mut substrings: Vec<String> = vec![];
                 // The X's in X-MAS
                 let (mut d1, mut d2) = (j, j + 2);
-                let diag_one: String = word_search[i..i + 3]
-                    .iter()
-                    .map(|e| {
-                        let res = e[d1];
-                        d1 += 1;
-                        res
-                    })
-                    .collect();
-                let diag_two: String = word_search[i..i + 3]
-                    .iter()
-                    .map(|e| {
-                        let res = e[d2];
-                        if d2 != 0 {
-                            d2 -= 1;
-                        }
-                        res
-                    })
-                    .collect();
+                let (mut diag_one, mut diag_two) = (String::new(), String::new());
+                word_search[i..i + 3].iter().for_each(|e| {
+                    diag_one.push(e[d1]);
+                    diag_two.push(e[d2]);
+                    d1 += 1;
+                    d2 -= if d2 != 0 { 1 } else { 0 };
+                });
                 substrings.extend(vec![diag_one, diag_two]);
                 let x_mas = substrings
                     .iter()
