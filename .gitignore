@@ -13,6 +13,9 @@ wheels/
 # Virtual environments
 .venv
 
+# Rust-generated files
+target/
+
 # Environement variables
 .env
 !.env.example
