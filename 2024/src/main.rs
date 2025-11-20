@@ -1,9 +1,9 @@
 use clap::Parser;
 use dotenvy::dotenv;
-use std::{error::Error, process};
+use std::error::Error;
 use tokio;
 
-pub mod solutions;
+mod solutions;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -38,15 +38,7 @@ async fn main() {
         _ => panic!(),
     };
 
-    let ((res_one, time_one), (res_two, time_two)) = match args.day {
-        1 => solutions::day1::solve(input).await,
-        2 => solutions::day2::solve(input).await,
-        3 => solutions::day3::solve(input).await,
-        _ => {
-            eprintln!("Day {} not implemented yet!", args.day);
-            process::exit(0);
-        }
-    };
+    let ((res_one, time_one), (res_two, time_two)) = solutions::run(args.day, input).await;
 
     println!("Advent of Code 2024 Day {}:", args.day);
     println!("Part One: {}", res_one);
