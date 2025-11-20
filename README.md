@@ -12,10 +12,19 @@
 This is a monorepo containing my code solutions for every years [Advent of Code](https://adventofcode.com), dating back to 2015. This is something I began putting together in 2025 mostly out of boredom and an attempt to challenge myself by going back at these old problems and having a stab at them. I will also update this repository with future advent of codes in addition to working on previous year's ones.
 
 ## Running Solutions
+In general, all subdirectories/years have a `.env.example` file that needs to be copied into a `.env` file with a session token in order to retrieve solutions from Advent of Code - this repo does not directly store input files on it. You can retrieve this session cookie from any modern web browser's dev tools, under the `Application` tab and `Cookies` section for chromium-based browsers, for instance.
 
-- 2015: [Read the Instructions](2015/README.md) (Python)
-- 2022: [Read the Instructions](2022/README.md) (Python)
-- 2024: [Read the Instructions](2024/README.md) (Rust)
+The session token is tied to *your login* of Advent of Code, which means this repository will attempt to solve for your Advent of Code problems. If you don't want to be spoiled - don't run this repo! Not all problems will necessarily work; as some rely on additional input that may not be uniform between users playing Advent of Code, and these have been hardcoded into the solutions.
+
+- 2015 (Python):
+  - [Instructions](2015/README.md)
+  - [Solutions](2015/solutions)
+- 2022 (Python):
+  - [Instructions](2022/README.md)
+  - [Solutions](2022/solutions)
+- 2024 (Rust):
+  - [Instructions](2024/README.md)
+  - [Solutions](2024/src/solutions)
 
 ## Progress
 - 2015: 42 Stars
