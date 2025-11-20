@@ -81,9 +81,7 @@ impl super::lib::Puzzle<usize> for Solver {
                     .iter()
                     .filter(|&s| s == "MAS" || s == "SAM")
                     .count();
-                if x_mas == 2 {
-                    total += 1
-                }
+                total += if x_mas == 2 { 1 } else { 0 }
             }
         }
 
