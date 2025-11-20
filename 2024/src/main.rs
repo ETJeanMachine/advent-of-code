@@ -41,6 +41,7 @@ async fn main() {
     let ((res_one, time_one), (res_two, time_two)) = match args.day {
         1 => solutions::day1::solve(input).await,
         2 => solutions::day2::solve(input).await,
+        3 => solutions::day3::solve(input).await,
         _ => {
             eprintln!("Day {} not implemented yet!", args.day);
             process::exit(0);
