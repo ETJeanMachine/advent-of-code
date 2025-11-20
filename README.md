@@ -21,4 +21,4 @@ This is a monorepo containing my code solutions for every years [Advent of Code]
 - 2015: 42 Stars
 - 2022: 27 Stars
   - 2022's day's one through fourteen part one were done privately in 2022; and then imported and refactored to fit to this repository.
-- 2024: 8 Stars
+- 2024: 10 Stars
