@@ -40,6 +40,7 @@ impl super::lib::Puzzle<usize> for Solver {
                         substrings.push(word_search[i..i + 4].iter().map(|v| v[k]).collect());
                     }
                 }
+                // Adding our diagonals for the scan
                 let (mut d1, mut d2) = (j, j + 3);
                 let (mut diag_one, mut diag_two) = (String::new(), String::new());
                 word_search[i..i + 4].iter().for_each(|e| {
