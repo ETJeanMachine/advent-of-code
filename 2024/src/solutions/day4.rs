@@ -1,6 +1,10 @@
 pub struct Solver(pub String);
 
-fn scan_block(block: [[char; 4]; 4]) -> u8 {
+fn scan_block(block: Vec<&[char]>) -> i32 {
+    for r in block.as_slice() {
+        println!("{:?}", r);
+    }
+    println!();
     let mut substrings: Vec<String> = vec![];
 
     let diag_one = [block[0][0], block[1][1], block[2][2], block[3][3]];
@@ -13,12 +17,14 @@ fn scan_block(block: [[char; 4]; 4]) -> u8 {
         let col = [block[0][i], block[1][i], block[2][i], block[3][i]];
         substrings.push(col.iter().collect());
     }
-    substrings.iter().fold(0, |acc, e| {
-        acc + match e.as_str() {
-            "XMAS" | "SMAX" => 1,
+    let mut count = 0;
+    for sub in substrings {
+        count += match sub.as_str() {
+            "XMAS" | "SAMX" => 1,
             _ => 0,
         }
-    })
+    }
+    return count;
 }
 
 impl super::lib::Puzzle<i32> for Solver {
@@ -35,15 +41,17 @@ impl super::lib::Puzzle<i32> for Solver {
             }
         }
 
+        let mut total = 0;
+
         for i in 0..word_search.len() - 4 {
             for j in 0..word_search[i].len() - 4 {
-                let mut block = [['.'; 4]; 4];
+                let rows = &word_search[i..i + 4];
+                let block: Vec<&[char]> = rows.iter().map(|v| &v[j..j + 4]).collect();
+                total += scan_block(block);
             }
         }
 
-        println!("{:?}", word_search);
-
-        0
+        total
     }
 
     async fn part_two(&self) -> i32 {
