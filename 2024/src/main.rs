@@ -36,7 +36,9 @@ async fn main() {
     let input = match get_input(args.day).await {
         Ok(t) => t,
         _ => panic!(),
-    };
+    }
+    .trim()
+    .to_string();
 
     let ((res_one, time_one), (res_two, time_two)) = solutions::run(args.day, input).await;
 

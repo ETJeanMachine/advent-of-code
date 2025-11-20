@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::solutions as sol;
+use crate::solutions::*;
 
 type Solution = (String, u128);
 
@@ -23,9 +23,10 @@ async fn run_day<T: ToString>(puzzle: &impl Puzzle<T>) -> (Solution, Solution) {
 
 pub async fn run(day: u8, input: String) -> (Solution, Solution) {
     match day {
-        1 => run_day(&sol::day1::Solver(input)).await,
-        2 => run_day(&sol::day2::Solver(input)).await,
-        3 => run_day(&sol::day3::Solver(input)).await,
+        1 => run_day(&day1::Solver(input)).await,
+        2 => run_day(&day2::Solver(input)).await,
+        3 => run_day(&day3::Solver(input)).await,
+        4 => run_day(&day4::Solver(input)).await,
         _ => unimplemented!(),
     }
 }
