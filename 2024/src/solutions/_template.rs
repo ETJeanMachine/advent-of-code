@@ -1,7 +1,7 @@
 pub struct Solver(pub String);
 
 impl Solver {
-    fn parse_input(&self) -> T;
+    fn parse_input(&self) {}
 }
 
 impl super::lib::Puzzle<i32> for Solver {
