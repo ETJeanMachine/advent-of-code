@@ -96,12 +96,14 @@ impl super::lib::Puzzle<usize> for Solver {
         let mut obstacle_set = HashSet::new();
         while let Some((pos, dirs)) = v_iter.next() {
             for dir in dirs {
+                // The position of the obstacle would be right in front of our current position.
                 let obstacle_pos = match step(&map, pos, dir) {
                     Some((p, _)) => p,
                     None => continue,
                 };
                 let mut obstacle_map = map.clone();
                 let map_loc = &mut obstacle_map[obstacle_pos.0][obstacle_pos.1];
+                // We skip if there's already an obstacle there - nothing changes!
                 *map_loc = match *map_loc != '#' {
                     true => '#',
                     false => continue,
