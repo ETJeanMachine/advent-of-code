@@ -20,7 +20,7 @@ impl Solver {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
 enum Direction {
     N,
     E,
@@ -69,7 +69,27 @@ impl super::lib::Puzzle<usize> for Solver {
         distinct_set.len()
     }
 
+    // this is bad and runs super slow. ill fix it prommy :3
     async fn part_two(&self) -> usize {
-        0
+        let (map, init) = self.parse_input();
+        let mut loop_obstacle_count = 0;
+        for i in 0..map.len() {
+            for j in 0..map[i].len() {
+                let mut map = map.clone();
+                map[i][j] = '#';
+                let mut loop_set: HashSet<(Coord, Direction)> = HashSet::new();
+                let mut curr_pos = init;
+                let mut curr_dir = Direction::N;
+                while let Some(next) = step(&map, &curr_pos, &curr_dir) {
+                    (curr_pos, curr_dir) = next;
+                    if loop_set.contains(&next) {
+                        loop_obstacle_count += 1;
+                        break;
+                    }
+                    loop_set.insert(next);
+                }
+            }
+        }
+        loop_obstacle_count
     }
 }
