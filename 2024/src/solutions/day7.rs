@@ -45,20 +45,18 @@ impl super::lib::Puzzle<u128> for Solver {
         let operations = self.parse_input();
         let mut total = 0;
         for (res, vals) in operations {
-            let mut res_vec = vec![vals[0]];
-            for i in 1..vals.len() {
-                let mut new_vec = vec![];
-                for v in res_vec {
-                    new_vec.push(v * vals[i]);
-                    new_vec.push(v + vals[i]);
-                    new_vec.push(format!("{}{}", v, vals[i]).parse().unwrap())
-                }
-                res_vec = new_vec;
-            }
-            let valid_count = res_vec.iter().filter(|&v| *v == res).count();
-            if valid_count > 0 {
-                total += res
-            }
+            total += vals
+                .iter()
+                .skip(1)
+                .fold(vec![vals[0]], |acc, &b| {
+                    acc.iter()
+                        .flat_map(|&a| vec![a * b, a + b, format!("{}{}", a, b).parse().unwrap()])
+                        .filter(|&v| v <= res)
+                        .collect()
+                })
+                .iter()
+                .find(|&v| *v == res)
+                .unwrap_or(&0);
         }
         total
     }
