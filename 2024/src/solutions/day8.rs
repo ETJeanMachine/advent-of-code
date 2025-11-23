@@ -19,11 +19,7 @@ impl FromStr for RoofMap {
         let mut map: HashMap<char, Vec<Point>> = HashMap::new();
         let lines = s.split("\n");
         let height = lines.clone().count();
-        let width = lines
-            .clone()
-            .last()
-            .ok_or("Zero-width map".to_string())?
-            .len();
+        let width = lines.clone().last().ok_or("Empty map".to_string())?.len();
         for (row, line) in lines.enumerate() {
             for (col, c) in line.chars().enumerate() {
                 if c != '.' {
