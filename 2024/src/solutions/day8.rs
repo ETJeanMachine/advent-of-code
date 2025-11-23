@@ -32,15 +32,11 @@ impl FromStr for RoofMap {
                 }
             }
         }
-        Ok(RoofMap::new(map, height, width))
+        Ok(RoofMap { map, height, width })
     }
 }
 
 impl RoofMap {
-    pub fn new(map: HashMap<char, Vec<Point>>, height: usize, width: usize) -> Self {
-        Self { map, height, width }
-    }
-
     fn checked_row_add(&self, row: usize, rise: usize) -> Option<usize> {
         if row + rise < self.height {
             Some(row + rise)
