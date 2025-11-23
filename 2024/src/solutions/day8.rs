@@ -131,6 +131,9 @@ impl RoofMap {
             let pairs = points.iter().combinations(2).map(|v| (*v[0], *v[1]));
             for (a, b) in pairs {
                 set.extend(self.all_pts(a, b, limit));
+                if limit.is_none() {
+                    set.extend(vec![a, b]);
+                }
             }
         }
         return set;
