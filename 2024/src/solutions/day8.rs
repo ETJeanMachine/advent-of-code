@@ -1,14 +1,29 @@
-use std::collections::{HashMap, HashSet};
-
-pub struct Solver(pub String);
+use itertools::Itertools;
+use std::{
+    collections::{HashMap, HashSet},
+    str::FromStr,
+};
 
 type Point = (usize, usize);
-impl Solver {
-    fn parse_input(&self) -> (HashMap<char, Vec<Point>>, usize, usize) {
+#[derive(Clone, Debug)]
+pub struct RoofMap {
+    map: HashMap<char, Vec<Point>>,
+    height: usize,
+    width: usize,
+}
+
+impl FromStr for RoofMap {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut map: HashMap<char, Vec<Point>> = HashMap::new();
-        let lines = self.0.split("\n");
+        let lines = s.split("\n");
         let height = lines.clone().count();
-        let width = lines.clone().last().unwrap().len();
+        let width = lines
+            .clone()
+            .last()
+            .ok_or("Zero-width map".to_string())?
+            .len();
         for (row, line) in lines.enumerate() {
             for (col, c) in line.chars().enumerate() {
                 if c != '.' {
@@ -21,82 +36,119 @@ impl Solver {
                 }
             }
         }
-        (map, height, width)
+        Ok(RoofMap::new(map, height, width))
     }
 }
 
-fn antinodes(a: &Point, b: &Point, height: usize, width: usize) -> (Option<Point>, Option<Point>) {
-    let (rise, run) = (a.0.abs_diff(b.0), a.1.abs_diff(b.1));
-    let mut antinode_a = (None, None);
-    let mut antinode_b = (None, None);
-    if a.0 < b.0 {
-        antinode_a.0 = a.0.checked_sub(rise);
-        antinode_b.0 = if b.0 + rise < height {
-            Some(b.0 + rise)
-        } else {
-            None
-        }
-    } else {
-        antinode_b.0 = b.0.checked_sub(rise);
-        antinode_a.0 = if a.0 + rise < height {
-            Some(a.0 + rise)
+impl RoofMap {
+    pub fn new(map: HashMap<char, Vec<Point>>, height: usize, width: usize) -> Self {
+        Self { map, height, width }
+    }
+
+    fn checked_row_add(&self, row: usize, rise: usize) -> Option<usize> {
+        if row + rise < self.height {
+            Some(row + rise)
         } else {
             None
         }
     }
-    if a.1 < b.1 {
-        antinode_a.1 = a.1.checked_sub(run);
-        antinode_b.1 = if b.1 + run < width {
-            Some(b.1 + run)
-        } else {
-            None
-        }
-    } else {
-        antinode_b.1 = b.1.checked_sub(run);
-        antinode_a.1 = if a.1 + run < height {
-            Some(a.1 + run)
+
+    fn checked_col_add(&self, col: usize, run: usize) -> Option<usize> {
+        if col + run < self.width {
+            Some(col + run)
         } else {
             None
         }
     }
-    let antinode_a = if let (Some(r), Some(c)) = antinode_a {
-        Some((r, c))
-    } else {
+
+    fn next_bot(&self, pt: Point, rise: usize, run: usize, slope: i32) -> Option<Point> {
+        let new_r = self.checked_row_add(pt.0, rise);
+        let new_c = match slope {
+            -1 => pt.1.checked_sub(run),
+            1 => self.checked_col_add(pt.1, run),
+            _ => unreachable!(),
+        };
+        if let (Some(r), Some(c)) = (new_r, new_c) {
+            return Some((r, c));
+        }
         None
-    };
-    let antinode_b = if let (Some(r), Some(c)) = antinode_b {
-        Some((r, c))
-    } else {
+    }
+
+    fn next_top(&self, pt: Point, rise: usize, run: usize, slope: i32) -> Option<Point> {
+        let new_r = pt.0.checked_sub(rise);
+        let new_c = match slope {
+            -1 => self.checked_col_add(pt.1, run),
+            1 => pt.1.checked_sub(run),
+            _ => unreachable!(),
+        };
+        if let (Some(r), Some(c)) = (new_r, new_c) {
+            return Some((r, c));
+        }
         None
-    };
-    return (antinode_a, antinode_b);
+    }
+
+    fn all_pts(&self, a: Point, b: Point, limit: Option<usize>) -> Vec<Point> {
+        let mut antinodes = vec![];
+        let (rise, run) = (a.0.abs_diff(b.0), a.1.abs_diff(b.1));
+        let slope = ((a.0 as f32 - b.0 as f32) / (a.1 as f32 - b.1 as f32)).signum() as i32;
+        let (mut top_pt, mut bot_pt) = if a.0 < b.0 {
+            (Some(a), Some(b))
+        } else {
+            (Some(b), Some(a))
+        };
+
+        let mut max_len = false;
+        let mut add_attempt = 0;
+        top_pt = self.next_top(top_pt.unwrap(), rise, run, slope);
+        bot_pt = self.next_bot(bot_pt.unwrap(), rise, run, slope);
+        while (top_pt.is_some() || bot_pt.is_some()) && !max_len {
+            if let Some(pt) = top_pt {
+                antinodes.push(pt);
+                top_pt = self.next_top(pt, rise, run, slope);
+            }
+            if let Some(pt) = bot_pt {
+                antinodes.push(pt);
+                bot_pt = self.next_bot(pt, rise, run, slope);
+            }
+            add_attempt += 2;
+            max_len = if let Some(n) = limit {
+                add_attempt >= n
+            } else {
+                false
+            };
+        }
+
+        antinodes
+    }
+
+    /// Solves for all antinode positions on the roof, with `limit` designating how
+    /// many antinodes can exist for a given pair of similar sattelite points.
+    pub fn antinodes(&self, limit: Option<usize>) -> HashSet<Point> {
+        let mut set = HashSet::new();
+        for sat in self.map.keys() {
+            let points = self.map.get(sat).unwrap().to_owned();
+            // All unique pairs of points.
+            let pairs = points.iter().combinations(2).map(|v| (*v[0], *v[1]));
+            for (a, b) in pairs {
+                set.extend(self.all_pts(a, b, limit));
+            }
+        }
+        return set;
+    }
 }
+
+pub struct Solver(pub String);
 
 impl super::lib::Puzzle<usize> for Solver {
     async fn part_one(&self) -> usize {
-        let (map, height, width) = self.parse_input();
-        let mut node_set: HashSet<Point> = HashSet::new();
-        for k in map.keys() {
-            let points = map.get(k).unwrap();
-            for a in points {
-                for b in points {
-                    if a == b {
-                        continue;
-                    }
-                    let (antinode_a, antinode_b) = antinodes(a, b, height, width);
-                    if let Some(antinode_a) = antinode_a {
-                        node_set.insert(antinode_a);
-                    }
-                    if let Some(antinode_b) = antinode_b {
-                        node_set.insert(antinode_b);
-                    }
-                }
-            }
-        }
-        node_set.len()
+        let roof = RoofMap::from_str(self.0.as_str()).unwrap();
+        let set = roof.antinodes(Some(2));
+        set.len()
     }
 
     async fn part_two(&self) -> usize {
-        0
+        let roof = RoofMap::from_str(self.0.as_str()).unwrap();
+        let set = roof.antinodes(None);
+        set.len()
     }
 }
