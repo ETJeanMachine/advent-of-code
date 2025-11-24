@@ -31,6 +31,7 @@ pub async fn run(day: u8, input: String) -> (Solution, Solution) {
         6 => run_day(&day6::Solver(input)).await,
         7 => run_day(&day7::Solver(input)).await,
         8 => run_day(&day8::Solver(input)).await,
+        9 => run_day(&day9::Solver(input)).await,
         ..=25 => unimplemented!(),
         _ => unreachable!(),
     }
