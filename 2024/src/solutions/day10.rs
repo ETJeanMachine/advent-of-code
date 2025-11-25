@@ -97,11 +97,11 @@ impl TopoMap {
         if self.map[row][col] == 9 {
             return 1;
         }
-        let mut total_rating = 0;
-        for (adjacent_row, adjacent_col) in self.steps(row, col) {
-            total_rating += self.trailhead_rating(adjacent_row, adjacent_col);
-        }
-        total_rating
+        self.steps(row, col)
+            .iter()
+            .fold(0, |acc, (next_row, next_col)| {
+                acc + self.trailhead_rating(*next_row, *next_col)
+            })
     }
 
     pub fn total_rating(&self) -> u32 {
