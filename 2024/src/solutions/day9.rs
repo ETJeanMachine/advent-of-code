@@ -95,6 +95,22 @@ impl DiskMap {
         })
     }
 
+    fn clear_space(&mut self, idx: usize) {
+        let mut idx = idx;
+        self.blocks[idx] = (None, self.blocks[idx].1);
+        if let Some(n) = idx.checked_sub(1)
+            && self.blocks[n].0.is_none()
+        {
+            self.blocks[idx].1 += self.blocks[n].1;
+            self.blocks.remove(n);
+            idx -= 1;
+        }
+        if idx + 1 < self.blocks.len() && self.blocks[idx + 1].0.is_none() {
+            self.blocks[idx].1 += self.blocks[idx + 1].1;
+            self.blocks.remove(idx + 1);
+        }
+    }
+
     pub fn compact(&mut self) {
         let final_idx = self.last_file().unwrap();
         let final_id = self.blocks[final_idx].0.unwrap();
@@ -103,13 +119,11 @@ impl DiskMap {
             if let Some(file_idx) = self.file_loc(file_id) {
                 file_id = self.blocks[file_idx].0.unwrap();
                 let file_size = self.blocks[file_idx].1;
-                if let Some(mut empty_idx) = self.first_empty_fits(file_size) {
+                if let Some(empty_idx) = self.first_empty_fits(file_size)
+                    && empty_idx < file_idx
+                {
                     self.blocks[empty_idx].1 -= file_size;
-                    self.blocks.remove(file_idx);
-                    empty_idx -= if empty_idx >= self.blocks.len() { 1 } else { 0 };
-                    if self.blocks[empty_idx].1 == 0 {
-                        self.blocks.remove(empty_idx);
-                    }
+                    self.clear_space(file_idx);
                     self.blocks.insert(empty_idx, (Some(file_id), file_size));
                 }
             }
@@ -144,6 +158,7 @@ impl super::lib::Puzzle<usize> for Solver {
     }
 
     async fn part_two(&self) -> usize {
+        let _test = "2333133121414131402";
         let mut diskmap = DiskMap::from_str(self.0.as_str()).unwrap();
         diskmap.compact();
         diskmap.checksum()
