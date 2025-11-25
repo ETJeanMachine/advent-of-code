@@ -47,21 +47,90 @@ impl fmt::Display for DiskMap {
 }
 
 impl DiskMap {
-    fn fill_first_empty(&mut self) -> bool {
-        let first_empty = self.blocks.iter().position(|x| x.0.is_none());
-        if let Some(i) = first_empty {
-            let mut file_iter = self.blocks.iter_mut().rev().filter(|x| x.0.is_some());
-            while self.blocks[i].0.is_none() {
-                let mut next_file = file_iter.next().unwrap();
-            }
-        }
-        false
+    fn first_empty(&self) -> Option<usize> {
+        self.blocks.iter().position(|x| x.0.is_none())
     }
 
-    pub fn compress(&mut self) {}
+    fn last_file(&self) -> Option<usize> {
+        if let Some(pos) = self.blocks.iter().rev().position(|x| x.0.is_some()) {
+            return Some(self.blocks.len() - pos - 1);
+        }
+        None
+    }
+
+    pub fn compress(&mut self) {
+        while let Some(empty_idx) = self.first_empty() {
+            let empty_size = self.blocks[empty_idx].1;
+            if empty_size == 0 {
+                self.blocks.remove(empty_idx);
+            } else if let Some(file_idx) = self.last_file() {
+                let (file_id, file_size) = self.blocks[file_idx];
+                let file_id = file_id.unwrap();
+                if file_size <= empty_size {
+                    self.blocks[empty_idx].1 -= file_size;
+                    self.blocks.remove(file_idx);
+                    self.blocks.insert(empty_idx, (Some(file_id), file_size));
+                } else {
+                    self.blocks[empty_idx].1 = 0;
+                    self.blocks[file_idx].1 -= empty_size;
+                    self.blocks.insert(empty_idx, (Some(file_id), empty_size));
+                }
+            }
+        }
+    }
+
+    fn first_empty_fits(&self, size: usize) -> Option<usize> {
+        self.blocks
+            .iter()
+            .position(|(block, block_size)| block.is_none() && *block_size >= size)
+    }
+
+    fn file_loc(&self, id: usize) -> Option<usize> {
+        self.blocks.iter().position(|(block, _)| {
+            if let Some(file_id) = block {
+                *file_id == id
+            } else {
+                false
+            }
+        })
+    }
+
+    pub fn compact(&mut self) {
+        let final_idx = self.last_file().unwrap();
+        let final_id = self.blocks[final_idx].0.unwrap();
+        let mut file_id = final_id;
+        loop {
+            if let Some(file_idx) = self.file_loc(file_id) {
+                file_id = self.blocks[file_idx].0.unwrap();
+                let file_size = self.blocks[file_idx].1;
+                if let Some(mut empty_idx) = self.first_empty_fits(file_size) {
+                    self.blocks[empty_idx].1 -= file_size;
+                    self.blocks.remove(file_idx);
+                    empty_idx -= if empty_idx >= self.blocks.len() { 1 } else { 0 };
+                    if self.blocks[empty_idx].1 == 0 {
+                        self.blocks.remove(empty_idx);
+                    }
+                    self.blocks.insert(empty_idx, (Some(file_id), file_size));
+                }
+            }
+            file_id = match file_id.checked_sub(1) {
+                Some(n) => n,
+                None => break,
+            };
+        }
+    }
 
     pub fn checksum(&self) -> usize {
-        0
+        let mut final_pos = 0;
+        let mut checksum = 0;
+        for (id, size) in self.blocks.iter() {
+            let init_pos = final_pos;
+            final_pos = init_pos + size;
+            if let Some(id) = id {
+                checksum += id * (init_pos..final_pos).fold(0, |acc, x| acc + x);
+            }
+        }
+        checksum
     }
 }
 
@@ -70,13 +139,13 @@ pub struct Solver(pub String);
 impl super::lib::Puzzle<usize> for Solver {
     async fn part_one(&self) -> usize {
         let mut diskmap = DiskMap::from_str(self.0.as_str()).unwrap();
-        println!("{}", diskmap);
         diskmap.compress();
         diskmap.checksum()
     }
 
     async fn part_two(&self) -> usize {
-        let diskmap = DiskMap::from_str(self.0.as_str()).unwrap();
-        0
+        let mut diskmap = DiskMap::from_str(self.0.as_str()).unwrap();
+        diskmap.compact();
+        diskmap.checksum()
     }
 }
