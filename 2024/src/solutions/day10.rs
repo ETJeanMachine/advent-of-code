@@ -1,4 +1,8 @@
-use std::{fmt::Display, str::FromStr};
+use std::{
+    collections::{HashSet, VecDeque},
+    fmt::Display,
+    str::FromStr,
+};
 
 pub struct TopoMap {
     map: Vec<Vec<u8>>,
@@ -11,19 +15,18 @@ impl FromStr for TopoMap {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut map = vec![];
         let mut trailheads = vec![];
-        let mut r = 0;
-        for line in s.split("\n") {
-            map.push(vec![]);
-            let mut c = 0;
-            for d in line.chars() {
-                let d = d.to_string().parse().unwrap();
-                map[r].push(d);
-                if d == 0 {
-                    trailheads.push((r, c));
-                }
-                c += 1;
-            }
-            r += 1;
+        for (row, line) in s.split("\n").enumerate() {
+            map.push(
+                line.chars()
+                    .map(|c| c.to_string().parse().unwrap())
+                    .collect(),
+            );
+            trailheads.extend(
+                line.chars()
+                    .enumerate()
+                    .filter(|(_, x)| *x == '0')
+                    .map(|(col, _)| (row, col)),
+            );
         }
         Ok(TopoMap { map, trailheads })
     }
@@ -47,34 +50,64 @@ impl TopoMap {
     fn steps(&self, row: usize, col: usize) -> Vec<(usize, usize)> {
         let mut steps = vec![];
         let height = self.map[row][col] + 1;
-        if let Some(r) = row.checked_sub(1)
-            && self.map[r][col] == height
+        if let Some(north_row) = row.checked_sub(1)
+            && self.map[north_row][col] == height
         {
-            steps.push((r, col));
+            steps.push((north_row, col));
         }
-        if let Some(c) = col.checked_sub(1)
-            && self.map[row][c] == height
+        if let Some(west_col) = col.checked_sub(1)
+            && self.map[row][west_col] == height
         {
-            steps.push((row, c))
+            steps.push((row, west_col))
         }
-        let (r, c) = (row + 1, col + 1);
-        if r < self.map.len() && self.map[r][col] == height {
-            steps.push((r, col));
+        let (south_row, east_col) = (row + 1, col + 1);
+        if south_row < self.map.len() && self.map[south_row][col] == height {
+            steps.push((south_row, col));
         }
-        if c < self.map[row].len() && self.map[r][col] == height {
-            steps.push((row, c))
+        if east_col < self.map[row].len() && self.map[row][east_col] == height {
+            steps.push((row, east_col))
         }
         steps
     }
 
     fn trailhead_score(&self, row: usize, col: usize) -> u32 {
-        0
+        let mut queue = VecDeque::from([(row, col)]);
+        let mut explored = HashSet::from([(row, col)]);
+        let mut total_score = 0;
+        while let Some((curr_row, curr_col)) = queue.pop_front() {
+            if self.map[curr_row][curr_col] == 9 {
+                total_score += 1;
+            }
+            for adjacent in self.steps(curr_row, curr_col) {
+                if explored.insert(adjacent) {
+                    queue.push_back(adjacent);
+                }
+            }
+        }
+        total_score
     }
 
-    pub fn walkable_trails(&self) -> u32 {
+    pub fn total_score(&self) -> u32 {
         self.trailheads
             .iter()
             .fold(0, |acc, (row, col)| acc + self.trailhead_score(*row, *col))
+    }
+
+    fn trailhead_rating(&self, row: usize, col: usize) -> u32 {
+        if self.map[row][col] == 9 {
+            return 1;
+        }
+        let mut total_rating = 0;
+        for (adjacent_row, adjacent_col) in self.steps(row, col) {
+            total_rating += self.trailhead_rating(adjacent_row, adjacent_col);
+        }
+        total_rating
+    }
+
+    pub fn total_rating(&self) -> u32 {
+        self.trailheads
+            .iter()
+            .fold(0, |acc, (row, col)| acc + self.trailhead_rating(*row, *col))
     }
 }
 
@@ -83,10 +116,11 @@ pub struct Solver(pub String);
 impl super::lib::Puzzle<u32> for Solver {
     async fn part_one(&self) -> u32 {
         let map = TopoMap::from_str(self.0.as_str()).unwrap();
-        map.walkable_trails()
+        map.total_score()
     }
 
     async fn part_two(&self) -> u32 {
-        0
+        let map = TopoMap::from_str(self.0.as_str()).unwrap();
+        map.total_rating()
     }
 }
