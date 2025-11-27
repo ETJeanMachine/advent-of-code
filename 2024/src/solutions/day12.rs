@@ -42,8 +42,12 @@ impl Farm {
         neighbours
     }
 
-    fn next_undiscovered(&self, discovered: &HashSet<(usize, usize)>) -> Option<(usize, usize)> {
-        for row in 0..self.height {
+    fn next_undiscovered(
+        &self,
+        curr_row: usize,
+        discovered: &HashSet<(usize, usize)>,
+    ) -> Option<(usize, usize)> {
+        for row in curr_row..self.height {
             for col in 0..self.width {
                 if !discovered.contains(&(row, col)) {
                     return Some((row, col));
@@ -76,7 +80,9 @@ impl Farm {
     pub fn total_region_cost(&self) -> u32 {
         let mut total_cost = 0;
         let mut discovered = HashSet::new();
-        while let Some(curr) = self.next_undiscovered(&discovered) {
+        let mut curr_row = 0;
+        while let Some(curr) = self.next_undiscovered(curr_row, &discovered) {
+            curr_row = curr.0;
             let (perimeter, area) = self.region_area_and_perimeter(&mut discovered, curr);
             total_cost += perimeter * area;
         }
