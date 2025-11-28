@@ -1,4 +1,15 @@
-use std::{collections::HashSet, str::FromStr};
+use std::{
+    collections::{BinaryHeap, HashMap, HashSet},
+    str::FromStr,
+};
+
+#[derive(PartialEq, Eq, Clone, Copy, Hash)]
+enum Direction {
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST,
+}
 
 pub struct Farm {
     farm_map: Vec<Vec<char>>,
@@ -22,14 +33,6 @@ impl FromStr for Farm {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Copy, Hash)]
-enum Direction {
-    NORTH,
-    SOUTH,
-    EAST,
-    WEST,
-}
-
 impl Farm {
     fn neighbouring_plants(
         &self,
@@ -39,17 +42,17 @@ impl Farm {
         let mut neighbours = vec![];
         let farm_map = &self.farm_map;
         let (row, col) = pos;
-        if row > 0 && farm_map[row - 1][col] == plant {
-            neighbours.push(((row - 1, col), Direction::NORTH));
-        }
         if row < self.height - 1 && farm_map[row + 1][col] == plant {
             neighbours.push(((row + 1, col), Direction::SOUTH));
         }
-        if col > 0 && farm_map[row][col - 1] == plant {
-            neighbours.push(((row, col - 1), Direction::WEST));
-        }
         if col < self.width - 1 && farm_map[row][col + 1] == plant {
             neighbours.push(((row, col + 1), Direction::EAST));
+        }
+        if row > 0 && farm_map[row - 1][col] == plant {
+            neighbours.push(((row - 1, col), Direction::NORTH));
+        }
+        if col > 0 && farm_map[row][col - 1] == plant {
+            neighbours.push(((row, col - 1), Direction::WEST));
         }
         neighbours
     }
@@ -101,17 +104,13 @@ impl Farm {
         total_cost
     }
 
-    fn region_area_and_sides(
+    fn add_to_sides(
         &self,
-        discovered: &mut HashSet<(usize, usize)>,
-        sides: &mut HashSet<(usize, Direction)>,
+        sides: &mut HashMap<(usize, Direction), BinaryHeap<usize>>,
         curr: (usize, usize),
-    ) -> u32 {
-        discovered.insert(curr);
+        neighbours: &Vec<((usize, usize), Direction)>,
+    ) {
         let (row, col) = curr;
-        let plant = self.farm_map[row][col];
-        let neighbours = self.neighbouring_plants(plant, curr);
-        let mut area = 1;
         let non_side_dirs: Vec<_> = neighbours.iter().map(|(_, dir)| *dir).collect();
         let side_dirs: Vec<_> = vec![
             Direction::NORTH,
@@ -124,11 +123,30 @@ impl Farm {
         .map(|dir| *dir)
         .collect();
         for dir in side_dirs {
-            sides.insert(match dir {
-                Direction::NORTH | Direction::SOUTH => (row, dir),
-                Direction::EAST | Direction::WEST => (col, dir),
-            });
+            let (side, index) = match dir {
+                Direction::NORTH | Direction::SOUTH => (row, col),
+                Direction::EAST | Direction::WEST => (col, row),
+            };
+            if let Some(heap) = sides.get_mut(&(side, dir)) {
+                heap.push(index);
+            } else {
+                sides.insert((side, dir), BinaryHeap::from([index]));
+            }
         }
+    }
+
+    fn region_area_and_sides(
+        &self,
+        discovered: &mut HashSet<(usize, usize)>,
+        sides: &mut HashMap<(usize, Direction), BinaryHeap<usize>>,
+        curr: (usize, usize),
+    ) -> u32 {
+        discovered.insert(curr);
+        let (row, col) = curr;
+        let plant = self.farm_map[row][col];
+        let neighbours = self.neighbouring_plants(plant, curr);
+        let mut area = 1;
+        self.add_to_sides(sides, curr, &neighbours);
         for (neighbour, _) in neighbours {
             if !discovered.contains(&neighbour) {
                 let next_area = self.region_area_and_sides(discovered, sides, neighbour);
@@ -144,9 +162,20 @@ impl Farm {
         let mut curr_row = 0;
         while let Some(curr) = self.next_undiscovered(curr_row, &discovered) {
             curr_row = curr.0;
-            let mut sides = HashSet::new();
+            let mut sides = HashMap::new();
             let area = self.region_area_and_sides(&mut discovered, &mut sides, curr);
-            total_cost += sides.len() as u32 * area
+            let mut total_sides = 0;
+            for heap in sides.values_mut() {
+                total_sides += 1;
+                let mut last_index = heap.pop().unwrap();
+                while let Some(index) = heap.pop() {
+                    if index.abs_diff(last_index) != 1 {
+                        total_sides += 1;
+                    }
+                    last_index = index;
+                }
+            }
+            total_cost += total_sides * area
         }
         total_cost
     }
