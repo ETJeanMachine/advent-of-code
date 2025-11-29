@@ -4,9 +4,9 @@ use std::{num::ParseIntError, str::FromStr};
 
 #[derive(Hash, Clone, Copy)]
 pub struct ClawMachine {
-    button_a: (u32, u32),
-    button_b: (u32, u32),
-    prize: (u32, u32),
+    button_a: (u64, u64),
+    button_b: (u64, u64),
+    prize: (u64, u64),
 }
 
 impl FromStr for ClawMachine {
@@ -39,12 +39,12 @@ impl FromStr for ClawMachine {
 }
 
 impl ClawMachine {
-    pub fn min_tokens(&self) -> Option<u32> {
-        let mut r1: Vec<_> = vec![self.button_a.0, self.button_b.0, self.prize.0]
+    pub fn min_tokens(&self, prize_add: u64) -> Option<u64> {
+        let mut r1: Vec<_> = vec![self.button_a.0, self.button_b.0, self.prize.0 + prize_add]
             .iter()
             .map(|x| Fraction::from(*x))
             .collect();
-        let mut r2: Vec<_> = vec![self.button_a.1, self.button_b.1, self.prize.1]
+        let mut r2: Vec<_> = vec![self.button_a.1, self.button_b.1, self.prize.1 + prize_add]
             .iter()
             .map(|x| Fraction::from(*x))
             .collect();
@@ -60,7 +60,7 @@ impl ClawMachine {
         let b_pushes = r2[2];
         let a_pushes = r1[2] - (r1[1] * b_pushes);
         if *a_pushes.denom().unwrap() == 1 && *b_pushes.denom().unwrap() == 1 {
-            return Some(((*a_pushes.numer().unwrap() * 3) + *b_pushes.numer().unwrap()) as u32);
+            return Some((*a_pushes.numer().unwrap() * 3) + *b_pushes.numer().unwrap());
         }
         None
     }
@@ -78,18 +78,24 @@ impl Solver {
     }
 }
 
-impl super::lib::Puzzle<u32> for Solver {
-    async fn part_one(&self) -> u32 {
+impl super::lib::Puzzle<u64> for Solver {
+    async fn part_one(&self) -> u64 {
         let claw_machines = self.parse_input();
         claw_machines.iter().fold(0, |acc, machine| {
-            acc + match machine.min_tokens() {
+            acc + match machine.min_tokens(0) {
                 Some(val) => val,
                 None => 0,
             }
         })
     }
 
-    async fn part_two(&self) -> u32 {
-        0
+    async fn part_two(&self) -> u64 {
+        let claw_machines = self.parse_input();
+        claw_machines.iter().fold(0, |acc, machine| {
+            acc + match machine.min_tokens(10000000000000) {
+                Some(val) => val,
+                None => 0,
+            }
+        })
     }
 }
