@@ -70,11 +70,10 @@ pub struct Solver(pub String);
 
 impl Solver {
     fn parse_input(&self) -> Vec<ClawMachine> {
-        let mut claw_machines = vec![];
-        for group in self.0.split("\n\n") {
-            claw_machines.push(ClawMachine::from_str(group).unwrap());
-        }
-        claw_machines
+        self.0
+            .split("\n\n")
+            .map(|g| ClawMachine::from_str(g).unwrap())
+            .collect()
     }
 }
 
