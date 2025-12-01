@@ -16,6 +16,9 @@ wheels/
 # Rust-generated files
 target/
 
+# Go-Debugger generated
+__debug_bin*
+
 # Environement variables
 .env
 !.env.example
