@@ -1,5 +1,5 @@
 use regex::Regex;
-use std::io::stdin;
+use std::io::{self, Write, stdin, stdout};
 
 const W: usize = 101;
 const H: usize = 103;
@@ -68,26 +68,28 @@ fn to_arr(robots: &Vec<Robot>) -> [[u16; W]; H] {
     robot_arr
 }
 
-fn is_xmas_tree(robot_arr: [[u16; W]; H]) -> bool {
-    for (start_row, robots) in robot_arr.iter().enumerate() {
-        let is_start = robots.iter().enumerate().fold(true, |acc, (col, space)| {
-            acc && if col != W / 2 {
-                *space == 0
-            } else {
-                *space != 0
-            }
-        });
-        if is_start {
-            for (row, robots) in robot_arr.iter().skip(start_row - 1).enumerate() {
-                if row < W / 2 {
-                    let (l_pos, r_pos) = (W / 2 - row, W / 2 - row);
-                }
-            }
-        } else {
-            return false;
+fn xmas_tree() -> [[u16; W]; H] {
+    let mut tree_arr = [[0_u16; W]; H];
+    for (row, tree_row) in tree_arr.iter_mut().enumerate() {
+        if row < W / 2 {
+            let (l_col, r_col) = (W / 2 - row, W / 2 + row);
+            tree_row[l_col] = 1;
+            tree_row[r_col] = 1;
+        } else if row == W / 2 {
+            tree_row.iter_mut().for_each(|v| *v = 1);
         }
     }
-    true
+    tree_arr
+}
+
+fn print_arr(arr: [[u16; W]; H]) {
+    for row in arr.iter() {
+        let row_str: String = row
+            .iter()
+            .map(|x| if *x == 0 { '.' } else { '*' })
+            .collect();
+        println!("{}", row_str);
+    }
 }
 
 impl super::lib::Puzzle<u32> for Solver {
@@ -100,15 +102,15 @@ impl super::lib::Puzzle<u32> for Solver {
     async fn part_two(&self) -> u32 {
         let mut robots = self.parse_input();
         let mut seconds_elapsed = 0;
-        loop {
-            seconds_elapsed += 1;
-            robots.iter_mut().for_each(|r| r.move_robot(1));
-            let robot_arr = to_arr(&robots);
-            if is_xmas_tree(robot_arr) {
-                println!("Seconds Elapsed: {}", seconds_elapsed);
-                break;
-            }
-        }
+        // loop {
+        //     robots.iter_mut().for_each(|r| r.move_robot(1));
+        //     seconds_elapsed += 1;
+        //     println!("\rSeconds Elapsed: {}", seconds_elapsed);
+        //     let arr = to_arr(&robots);
+        //     print_arr(arr);
+        //     stdout().flush().unwrap();
+        //     std::thread::sleep(std::time::Duration::from_millis(5));
+        // }
         seconds_elapsed
     }
 }
