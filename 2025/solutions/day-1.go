@@ -1,7 +1,6 @@
 package solutions
 
 import (
-	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -30,28 +29,7 @@ func (s *safe) rotate_dial(dist int) int {
 	return clicks
 }
 
-func part_one(instructions []int) int {
-	safe := safe{50}
-	password := 0
-	for _, dist := range instructions {
-		safe.rotate_dial(dist)
-		if safe.dial == 0 {
-			password += 1
-		}
-	}
-	return password
-}
-
-func part_two(instructions []int) int {
-	safe := safe{50}
-	password := 0
-	for _, dist := range instructions {
-		password += safe.rotate_dial(dist)
-	}
-	return password
-}
-
-func parse_input(input string) []int {
+func parseInput(input string) []int {
 	var parsed []int
 	r := regexp.MustCompile(`(L|R)(\d+)`)
 	matches := r.FindAllStringSubmatch(input, -1)
@@ -70,11 +48,29 @@ func parse_input(input string) []int {
 	return parsed
 }
 
-func Day1(input string) {
-	// test := "L68\nL30\nR48\nL5\nR60\nL55\nL1\nL99\nR14\nL82"
-	instructions := parse_input(input)
-	one_sol := part_one(instructions)
-	two_sol := part_two(instructions)
-	fmt.Printf("Part One: %d\n", one_sol)
-	fmt.Printf("Part Two: %d\n", two_sol)
+func partOne(input string) string {
+	parsed := parseInput(input)
+	safe := safe{50}
+	password := 0
+	for _, dist := range parsed {
+		safe.rotate_dial(dist)
+		if safe.dial == 0 {
+			password += 1
+		}
+	}
+	return strconv.Itoa(password)
+}
+
+func partTwo(input string) string {
+	parsed := parseInput(input)
+	safe := safe{50}
+	password := 0
+	for _, dist := range parsed {
+		password += safe.rotate_dial(dist)
+	}
+	return strconv.Itoa(password)
+}
+
+func DayOne() (func(string) string, func(string) string) {
+	return partOne, partTwo
 }
