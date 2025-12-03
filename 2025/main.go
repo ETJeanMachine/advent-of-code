@@ -47,7 +47,9 @@ func run_day(day int) {
 	var part_two func(input string) string
 	switch day {
 	case 1:
-		part_one, part_two = solutions.DayOne()
+		part_one, part_two = solutions.Day1()
+	case 2:
+		part_one, part_two = solutions.Day2()
 	default:
 		log.Fatalf("Day %d is not implemented.\n", day)
 	}

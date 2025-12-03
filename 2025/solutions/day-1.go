@@ -71,6 +71,6 @@ func dayOnePartTwo(input string) string {
 	return strconv.Itoa(password)
 }
 
-func DayOne() (func(string) string, func(string) string) {
+func Day1() (func(string) string, func(string) string) {
 	return dayOnePartOne, dayOnePartTwo
 }
