@@ -48,8 +48,8 @@ func parseInput1(input string) []int {
 	return parsed
 }
 
-func dayOnePartOne(input string) string {
-	parsed := parseInput(input)
+func day1Part1(input string) string {
+	parsed := parseInput1(input)
 	safe := safe{50}
 	password := 0
 	for _, dist := range parsed {
@@ -61,8 +61,8 @@ func dayOnePartOne(input string) string {
 	return strconv.Itoa(password)
 }
 
-func dayOnePartTwo(input string) string {
-	parsed := parseInput(input)
+func day1Part2(input string) string {
+	parsed := parseInput1(input)
 	safe := safe{50}
 	password := 0
 	for _, dist := range parsed {
@@ -72,5 +72,5 @@ func dayOnePartTwo(input string) string {
 }
 
 func Day1() (func(string) string, func(string) string) {
-	return dayOnePartOne, dayOnePartTwo
+	return day1Part1, day1Part2
 }
