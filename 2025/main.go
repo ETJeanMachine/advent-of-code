@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -38,7 +39,7 @@ func get_input(day int) string {
 
 	responseData, err := io.ReadAll(resp.Body)
 	responseString := string(responseData)
-	return responseString
+	return strings.TrimSpace(responseString)
 }
 
 func run_day(day int) {
@@ -61,9 +62,9 @@ func run_day(day int) {
 	res_two := part_two(input)
 	time_two := time.Since(now)
 	fmt.Printf("Part One: %s\n", res_one)
-	fmt.Printf("Time One: %dms\n\n", time_one.Milliseconds())
+	fmt.Printf("Time One: %.2fms\n\n", time_one.Seconds()*1000)
 	fmt.Printf("Part Two: %s\n", res_two)
-	fmt.Printf("Time Two: %dms\n", time_two.Milliseconds())
+	fmt.Printf("Time Two: %.2fms\n", time_two.Seconds()*1000)
 }
 
 func main() {
