@@ -20,36 +20,39 @@ func parseInput3(input string) [][]int {
 	return batteries
 }
 
-func maximumJoltage(bank []int) int {
-	battery_one := 0
-	var battery_one_idx int
-	for i := 0; i < len(bank)-1; i++ {
-		if battery_one < bank[i] {
-			battery_one = bank[i]
-			battery_one_idx = i
+func maximumJoltage(bank []int, n int) int {
+	max_battery := 0
+	var max_battery_idx int
+	for i := 0; i <= len(bank)-n; i++ {
+		if max_battery < bank[i] {
+			max_battery = bank[i]
+			max_battery_idx = i
 		}
 	}
-	battery_two := 0
-	for i := battery_one_idx + 1; i < len(bank); i++ {
-		if battery_two < bank[i] {
-			battery_two = bank[i]
-		}
+	if n == 1 {
+		return max_battery
 	}
-	return (battery_one * 10) + battery_two
+	joltage_str := fmt.Sprintf("%d%d", max_battery, maximumJoltage(bank[max_battery_idx+1:], n-1))
+	joltage, _ := strconv.Atoi(joltage_str)
+	return joltage
 }
 
 func day3PartOne(input string) string {
-	// input = "987654321111111\n811111111111119\n234234234234278\n818181911112111"
 	batteries := parseInput3(input)
 	total_joltage := 0
 	for _, bank := range batteries {
-		total_joltage += maximumJoltage(bank)
+		total_joltage += maximumJoltage(bank, 2)
 	}
 	return strconv.Itoa(total_joltage)
 }
 
 func day3PartTwo(input string) string {
-	return ""
+	batteries := parseInput3(input)
+	total_joltage := 0
+	for _, bank := range batteries {
+		total_joltage += maximumJoltage(bank, 12)
+	}
+	return strconv.Itoa(total_joltage)
 }
 
 func Day3() (func(string) string, func(string) string) {
