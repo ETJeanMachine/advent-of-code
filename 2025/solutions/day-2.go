@@ -61,6 +61,19 @@ func invalidInRange(start int, end int, n int) []int {
 	return invalids
 }
 
+func day2part1(input string) string {
+	parsed := parseInput2(input)
+	invalid_sum := 0
+	for _, id_range := range parsed {
+		start, end := id_range[0], id_range[1]
+		invalid_ids := invalidInRange(start, end, 2)
+		for _, id := range invalid_ids {
+			invalid_sum += id
+		}
+	}
+	return strconv.Itoa(invalid_sum)
+}
+
 func day2part2(input string) string {
 	parsed := parseInput2(input)
 	invalid_sum := 0
@@ -71,19 +84,6 @@ func day2part2(input string) string {
 			invalid_ids.Append(invalidInRange(start, end, n)...)
 		}
 		for _, id := range invalid_ids.ToSlice() {
-			invalid_sum += id
-		}
-	}
-	return strconv.Itoa(invalid_sum)
-}
-
-func day2part1(input string) string {
-	parsed := parseInput2(input)
-	invalid_sum := 0
-	for _, id_range := range parsed {
-		start, end := id_range[0], id_range[1]
-		invalid_ids := invalidInRange(start, end, 2)
-		for _, id := range invalid_ids {
 			invalid_sum += id
 		}
 	}

@@ -1,13 +1,13 @@
 package solutions
 
-func dayXPartOne(input string) string {
+func dayXPart1(input string) string {
 	return ""
 }
 
-func dayXPartTwo(input string) string {
+func dayXPart2(input string) string {
 	return ""
 }
 
 func _DayX() (func(string) string, func(string) string) {
-	return dayXPartOne, dayXPartTwo
+	return dayXPart1, dayXPart2
 }
