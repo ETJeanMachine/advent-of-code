@@ -29,7 +29,7 @@ func (s *safe) rotate_dial(dist int) int {
 	return clicks
 }
 
-func parseInput(input string) []int {
+func parseInput1(input string) []int {
 	var parsed []int
 	r := regexp.MustCompile(`(L|R)(\d+)`)
 	matches := r.FindAllStringSubmatch(input, -1)
