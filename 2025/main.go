@@ -2,6 +2,7 @@ package main
 
 import (
 	"advent-of-code/solutions"
+	"cmp"
 	"fmt"
 	"io"
 	"log"
@@ -74,11 +75,11 @@ func run_day(day int) {
 func benchmark_day(day int) {
 	median := func(list []time.Duration) time.Duration {
 		slices.SortFunc(list, func(a, b time.Duration) int {
-			return int(a - b)
+			return cmp.Compare(a, b)
 		})
 		n := len(list)
 		if n%2 == 0 {
-			return (list[n/2] + list[n/2+1]) / 2
+			return (list[n/2-1] + list[n/2]) / 2
 		}
 		return list[n/2]
 	}
