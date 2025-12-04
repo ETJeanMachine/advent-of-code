@@ -42,6 +42,15 @@ func get_input(day int) string {
 	return strings.TrimSpace(responseString)
 }
 
+func format_duration(duration time.Duration) string {
+	if duration.Milliseconds() == 0 {
+		return fmt.Sprintf("%.2fμs", duration.Seconds()*1e6)
+	} else if duration.Milliseconds() < 1000 {
+		return fmt.Sprintf("%.2fms", duration.Seconds()*1000)
+	}
+	return fmt.Sprintf("%.2fs", duration.Seconds())
+}
+
 func run_day(day int) {
 	input := get_input(day)
 	var part_one func(input string) string
@@ -62,13 +71,14 @@ func run_day(day int) {
 	now := time.Now()
 	res_one := part_one(input)
 	time_one := time.Since(now)
+	fmt.Printf("Part One: %s\n", res_one)
+	fmt.Printf("Time One: %s\n\n", format_duration(time_one))
+
 	now = time.Now()
 	res_two := part_two(input)
 	time_two := time.Since(now)
-	fmt.Printf("Part One: %s\n", res_one)
-	fmt.Printf("Time One: %.2fms\n\n", time_one.Seconds()*1000)
 	fmt.Printf("Part Two: %s\n", res_two)
-	fmt.Printf("Time Two: %.2fms\n", time_two.Seconds()*1000)
+	fmt.Printf("Time Two: %s\n", format_duration(time_two))
 }
 
 func main() {
