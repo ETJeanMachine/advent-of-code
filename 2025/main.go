@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -51,8 +52,7 @@ func format_duration(duration time.Duration) string {
 	return fmt.Sprintf("%.2fs", duration.Seconds())
 }
 
-func run_day(day int) {
-	input := get_input(day)
+func get_puzzles(day int) (func(input string) string, func(input string) string) {
 	var part_one func(input string) string
 	var part_two func(input string) string
 	switch day {
@@ -67,7 +67,15 @@ func run_day(day int) {
 	default:
 		log.Fatalf("Day %d is not implemented.\n", day)
 	}
+	return part_one, part_two
+}
+
+func run_day(day int) {
+	input := get_input(day)
+	part_one, part_two := get_puzzles(day)
+
 	fmt.Printf("Advent of Code 2025 Day %d\n", day)
+
 	now := time.Now()
 	res_one := part_one(input)
 	time_one := time.Since(now)
@@ -81,14 +89,54 @@ func run_day(day int) {
 	fmt.Printf("Time Two: %s\n", format_duration(time_two))
 }
 
+func benchmark_day(day int) {
+	median := func(list []time.Duration) time.Duration {
+		slices.SortFunc(list, func(a, b time.Duration) int {
+			return int(a - b)
+		})
+		n := len(list)
+		if n%2 == 0 {
+			return (list[n/2] + list[n/2+1]) / 2
+		}
+		return list[n/2]
+	}
+
+	bench_puzzle := func(puzzle func(input string) string, input string) time.Duration {
+		var benchmarks []time.Duration
+		// run for 5 seconds
+		for range 1000 {
+			start := time.Now()
+			puzzle(input)
+			benchmarks = append(benchmarks, time.Since(start))
+		}
+		return median(benchmarks)
+	}
+
+	fmt.Printf("Advent of Code 2025 Day %d Benchmarks (1000x)\n", day)
+	input := get_input(day)
+	part_one, part_two := get_puzzles(day)
+	median_one := bench_puzzle(part_one, input)
+	fmt.Printf("Part One Median Time: %s\n", format_duration(median_one))
+	median_two := bench_puzzle(part_two, input)
+	fmt.Printf("Part Two Median Time: %s\n", format_duration(median_two))
+}
+
 func main() {
 	if len(os.Args) <= 1 {
 		log.Fatal("Missing necessary command line arguments!")
 	}
 	cliArgs := os.Args[1:]
-	day, err := strconv.Atoi(cliArgs[0])
-	if err != nil {
-		log.Fatalf("Day \"%s\" is not an integer!", cliArgs[0])
+	if cliArgs[0] == "--bench" {
+		day, err := strconv.Atoi(cliArgs[1])
+		if err != nil {
+			log.Fatalf("Day \"%s\" is not an integer!", cliArgs[1])
+		}
+		benchmark_day(day)
+	} else {
+		day, err := strconv.Atoi(cliArgs[0])
+		if err != nil {
+			log.Fatalf("Day \"%s\" is not an integer!", cliArgs[0])
+		}
+		run_day(day)
 	}
-	run_day(day)
 }
