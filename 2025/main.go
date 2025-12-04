@@ -73,24 +73,6 @@ func run_day(day int) {
 }
 
 func benchmark_day(day int) {
-	median := func(list []time.Duration) time.Duration {
-		slices.SortFunc(list, func(a, b time.Duration) int {
-			return cmp.Compare(a, b)
-		})
-		n := len(list)
-		if n%2 == 0 {
-			return (list[n/2-1] + list[n/2]) / 2
-		}
-		return list[n/2]
-	}
-
-	min := func(list []time.Duration) time.Duration {
-		slices.SortFunc(list, func(a, b time.Duration) int {
-			return cmp.Compare(a, b)
-		})
-		return list[0]
-	}
-
 	bench_puzzle := func(puzzle func(input string) string, input string) (time.Duration, time.Duration) {
 		var benchmarks []time.Duration
 		// run for 5 seconds
@@ -99,7 +81,12 @@ func benchmark_day(day int) {
 			puzzle(input)
 			benchmarks = append(benchmarks, time.Since(start))
 		}
-		return median(benchmarks), min(benchmarks)
+		slices.SortFunc(benchmarks, func(a, b time.Duration) int {
+			return cmp.Compare(a, b)
+		})
+		median := (benchmarks[499] + benchmarks[500]) / 2
+		min := benchmarks[0]
+		return median, min
 	}
 
 	fmt.Printf("Advent of Code 2025 Day %d Benchmarks (1000x)\n", day)
