@@ -1,5 +1,8 @@
 package day4
 
+type printingDepartment struct {
+}
+
 func partOne(input string) string {
 	return ""
 }

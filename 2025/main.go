@@ -1,10 +1,7 @@
 package main
 
 import (
-	"advent-of-code/solutions/day1"
-	"advent-of-code/solutions/day2"
-	"advent-of-code/solutions/day3"
-	"advent-of-code/solutions/day4"
+	"advent-of-code/solutions"
 	"fmt"
 	"io"
 	"log"
@@ -51,13 +48,13 @@ func run_day(day int) {
 	var part_two func(input string) string
 	switch day {
 	case 1:
-		part_one, part_two = day1.Puzzles()
+		part_one, part_two = solutions.Day1()
 	case 2:
-		part_one, part_two = day2.Puzzles()
+		part_one, part_two = solutions.Day2()
 	case 3:
-		part_one, part_two = day3.Puzzles()
+		part_one, part_two = solutions.Day3()
 	case 4:
-		part_one, part_two = day4.Puzzles()
+		part_one, part_two = solutions.Day4()
 	default:
 		log.Fatalf("Day %d is not implemented.\n", day)
 	}
