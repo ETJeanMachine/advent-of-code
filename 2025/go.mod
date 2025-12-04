@@ -1,6 +1,6 @@
 module advent-of-code/main
 
-go 1.25.5
+go 1.24.4
 
 require (
 	advent-of-code/solutions v0.0.0-00010101000000-000000000000
