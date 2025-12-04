@@ -6,3 +6,8 @@ go run . <DAY>
 ```
 
 Where day is the day of problem solutions you want to solve.
+
+You can also run a benchmark on the solutions, which will run them 1000x and provide the median time it took to run, with:
+```bash
+go run . --bench <DAY>
+```
