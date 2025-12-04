@@ -1,4 +1,4 @@
-package solutions
+package day2
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	mapset "github.com/deckarep/golang-set/v2"
 )
 
-func parseInput2(input string) [][]int {
+func parseInput(input string) [][]int {
 	var parsed [][]int
 	lines := strings.SplitSeq(input, ",")
 	for line := range lines {
@@ -61,8 +61,8 @@ func invalidInRange(start int, end int, n int) []int {
 	return invalids
 }
 
-func day2part1(input string) string {
-	parsed := parseInput2(input)
+func partOne(input string) string {
+	parsed := parseInput(input)
 	invalid_sum := 0
 	for _, id_range := range parsed {
 		start, end := id_range[0], id_range[1]
@@ -74,8 +74,8 @@ func day2part1(input string) string {
 	return strconv.Itoa(invalid_sum)
 }
 
-func day2part2(input string) string {
-	parsed := parseInput2(input)
+func partTwo(input string) string {
+	parsed := parseInput(input)
 	invalid_sum := 0
 	for _, id_range := range parsed {
 		start, end := id_range[0], id_range[1]
@@ -90,6 +90,6 @@ func day2part2(input string) string {
 	return strconv.Itoa(invalid_sum)
 }
 
-func Day2() (func(string) string, func(string) string) {
-	return day2part1, day2part2
+func Puzzles() (func(string) string, func(string) string) {
+	return partOne, partTwo
 }

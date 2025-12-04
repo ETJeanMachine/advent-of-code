@@ -1,4 +1,4 @@
-package solutions
+package day3
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func parseInput3(input string) [][]int {
+func parseInput(input string) [][]int {
 	var batteries [][]int
 	lines := strings.SplitSeq(input, "\n")
 	for line := range lines {
@@ -37,8 +37,8 @@ func maximumJoltage(bank []int, n int) int {
 	return joltage
 }
 
-func day3PartOne(input string) string {
-	batteries := parseInput3(input)
+func partOne(input string) string {
+	batteries := parseInput(input)
 	total_joltage := 0
 	for _, bank := range batteries {
 		total_joltage += maximumJoltage(bank, 2)
@@ -46,8 +46,8 @@ func day3PartOne(input string) string {
 	return strconv.Itoa(total_joltage)
 }
 
-func day3PartTwo(input string) string {
-	batteries := parseInput3(input)
+func partTwo(input string) string {
+	batteries := parseInput(input)
 	total_joltage := 0
 	for _, bank := range batteries {
 		total_joltage += maximumJoltage(bank, 12)
@@ -55,6 +55,6 @@ func day3PartTwo(input string) string {
 	return strconv.Itoa(total_joltage)
 }
 
-func Day3() (func(string) string, func(string) string) {
-	return day3PartOne, day3PartTwo
+func Puzzles() (func(string) string, func(string) string) {
+	return partOne, partTwo
 }

@@ -1,4 +1,4 @@
-package solutions
+package day1
 
 import (
 	"log"
@@ -29,7 +29,7 @@ func (s *safe) rotate_dial(dist int) int {
 	return clicks
 }
 
-func parseInput1(input string) []int {
+func parseInput(input string) []int {
 	var parsed []int
 	r := regexp.MustCompile(`(L|R)(\d+)`)
 	matches := r.FindAllStringSubmatch(input, -1)
@@ -48,8 +48,8 @@ func parseInput1(input string) []int {
 	return parsed
 }
 
-func day1Part1(input string) string {
-	parsed := parseInput1(input)
+func partOne(input string) string {
+	parsed := parseInput(input)
 	safe := safe{50}
 	password := 0
 	for _, dist := range parsed {
@@ -61,8 +61,8 @@ func day1Part1(input string) string {
 	return strconv.Itoa(password)
 }
 
-func day1Part2(input string) string {
-	parsed := parseInput1(input)
+func partTwo(input string) string {
+	parsed := parseInput(input)
 	safe := safe{50}
 	password := 0
 	for _, dist := range parsed {
@@ -71,6 +71,6 @@ func day1Part2(input string) string {
 	return strconv.Itoa(password)
 }
 
-func Day1() (func(string) string, func(string) string) {
-	return day1Part1, day1Part2
+func Puzzles() (func(string) string, func(string) string) {
+	return partOne, partTwo
 }
