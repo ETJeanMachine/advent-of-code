@@ -52,27 +52,9 @@ func format_duration(duration time.Duration) string {
 	return fmt.Sprintf("%.2fs", duration.Seconds())
 }
 
-func get_puzzles(day int) (func(input string) string, func(input string) string) {
-	var part_one func(input string) string
-	var part_two func(input string) string
-	switch day {
-	case 1:
-		part_one, part_two = solutions.Day1()
-	case 2:
-		part_one, part_two = solutions.Day2()
-	case 3:
-		part_one, part_two = solutions.Day3()
-	case 4:
-		part_one, part_two = solutions.Day4()
-	default:
-		log.Fatalf("Day %d is not implemented.\n", day)
-	}
-	return part_one, part_two
-}
-
 func run_day(day int) {
 	input := get_input(day)
-	part_one, part_two := get_puzzles(day)
+	part_one, part_two := solutions.GetPuzzles(day)
 
 	fmt.Printf("Advent of Code 2025 Day %d\n", day)
 
@@ -114,7 +96,7 @@ func benchmark_day(day int) {
 
 	fmt.Printf("Advent of Code 2025 Day %d Benchmarks (1000x)\n", day)
 	input := get_input(day)
-	part_one, part_two := get_puzzles(day)
+	part_one, part_two := solutions.GetPuzzles(day)
 	median_one := bench_puzzle(part_one, input)
 	fmt.Printf("Part One Median Time: %s\n", format_duration(median_one))
 	median_two := bench_puzzle(part_two, input)
