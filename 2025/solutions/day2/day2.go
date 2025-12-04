@@ -10,8 +10,8 @@ import (
 	mapset "github.com/deckarep/golang-set/v2"
 )
 
-func parseInput(input string) [][]int {
-	var parsed [][]int
+func parseInput(input string) [][2]int {
+	var parsed [][2]int
 	lines := strings.SplitSeq(input, ",")
 	for line := range lines {
 		split := strings.Split(line, "-")
@@ -20,7 +20,7 @@ func parseInput(input string) [][]int {
 		if err_1 != nil || err_2 != nil {
 			log.Fatal("Error in parsing input!")
 		}
-		parsed = append(parsed, []int{start, end})
+		parsed = append(parsed, [2]int{start, end})
 	}
 	return parsed
 }
