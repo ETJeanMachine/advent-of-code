@@ -84,7 +84,14 @@ func benchmark_day(day int) {
 		return list[n/2]
 	}
 
-	bench_puzzle := func(puzzle func(input string) string, input string) time.Duration {
+	min := func(list []time.Duration) time.Duration {
+		slices.SortFunc(list, func(a, b time.Duration) int {
+			return cmp.Compare(a, b)
+		})
+		return list[0]
+	}
+
+	bench_puzzle := func(puzzle func(input string) string, input string) (time.Duration, time.Duration) {
 		var benchmarks []time.Duration
 		// run for 5 seconds
 		for range 1000 {
@@ -92,15 +99,17 @@ func benchmark_day(day int) {
 			puzzle(input)
 			benchmarks = append(benchmarks, time.Since(start))
 		}
-		return median(benchmarks)
+		return median(benchmarks), min(benchmarks)
 	}
 
 	fmt.Printf("Advent of Code 2025 Day %d Benchmarks (1000x)\n", day)
 	input := get_input(day)
 	part_one, part_two := solutions.GetPuzzles(day)
-	median_one := bench_puzzle(part_one, input)
-	fmt.Printf("Part One Median Time: %s\n", format_duration(median_one))
-	median_two := bench_puzzle(part_two, input)
+	median_one, min_one := bench_puzzle(part_one, input)
+	fmt.Printf("Part One Min Time: %s\n", format_duration(min_one))
+	fmt.Printf("Part One Median Time: %s\n\n", format_duration(median_one))
+	median_two, min_two := bench_puzzle(part_two, input)
+	fmt.Printf("Part Two Min Time: %s\n", format_duration(min_two))
 	fmt.Printf("Part Two Median Time: %s\n", format_duration(median_two))
 }
 
