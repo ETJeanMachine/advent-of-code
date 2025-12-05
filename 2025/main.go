@@ -85,21 +85,21 @@ func benchmark_day(day int) {
 			return cmp.Compare(a, b)
 		})
 		median := (benchmarks[499] + benchmarks[500]) / 2
-		min := benchmarks[0]
-		p99 := benchmarks[990]
-		return median, min, p99
+		p25 := benchmarks[250]
+		p75 := benchmarks[750]
+		return median, p25, p75
 	}
 
 	fmt.Printf("Advent of Code 2025 Day %d Benchmarks (1000x)\n", day)
 	input := get_input(day)
 	part_one, part_two := solutions.GetPuzzles(day)
-	median, min, p99 := bench_puzzle(part_one, input)
-	fmt.Printf("Part One Min Time: %s\n", format_duration(min))
-	fmt.Printf("Part One P99 Time: %s\n", format_duration(p99))
+	median, p25, p75 := bench_puzzle(part_one, input)
+	fmt.Printf("Part One P25 Time: %s\n", format_duration(p25))
+	fmt.Printf("Part One P75 Time: %s\n", format_duration(p75))
 	fmt.Printf("Part One Median Time: %s\n\n", format_duration(median))
-	median, min, p99 = bench_puzzle(part_two, input)
-	fmt.Printf("Part Two Min Time: %s\n", format_duration(min))
-	fmt.Printf("Part Two P99 Time: %s\n", format_duration(p99))
+	median, p25, p75 = bench_puzzle(part_two, input)
+	fmt.Printf("Part Two P25 Time: %s\n", format_duration(p25))
+	fmt.Printf("Part Two P75 Time: %s\n", format_duration(p75))
 	fmt.Printf("Part Two Median Time: %s\n", format_duration(median))
 }
 
