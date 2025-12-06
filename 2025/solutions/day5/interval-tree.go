@@ -3,8 +3,6 @@ package day5
 import (
 	"fmt"
 	"slices"
-
-	mapset "github.com/deckarep/golang-set/v2"
 )
 
 // Struct that holds overlapping intervals sorted by start and by end.
@@ -147,18 +145,44 @@ func (it *IntervalTree) Intervals(value int) [][2]int {
 	return it.root.overlaps(value, [][2]int{})
 }
 
+// public function for finding the total "span" of all intervals; eg, the sum of all interval lengths,
+// excluding overlapping intervals.
 func (it *IntervalTree) IntervalSpan() int {
-	uniqueIntervals := mapset.NewSet[[2]int]()
-	var findUnique func(n *Node)
-	findUnique = func(n *Node) {
-
+	type event struct {
+		pos   int
+		delta int // +1 for start, -1 for end
 	}
-	findUnique(it.root)
-	spanTotal := 0
-	for interval := range uniqueIntervals.Iter() {
-		spanTotal += (interval[1] - interval[0]) + 1
+	var events []event
+	var collect func(n *Node)
+	collect = func(n *Node) {
+		if n == nil {
+			return
+		}
+		for _, interval := range n.iterByStart() {
+			events = append(events, event{interval[0], 1})
+			events = append(events, event{interval[1] + 1, -1}) // +1 because inclusive
+		}
+		collect(n.left)
+		collect(n.right)
 	}
-	return spanTotal
+	collect(it.root)
+	slices.SortFunc(events, func(a, b event) int {
+		if a.pos != b.pos {
+			return a.pos - b.pos
+		}
+		return b.delta - a.delta // starts before ends at same position
+	})
+	span := 0
+	depth := 0
+	lastPos := 0
+	for _, e := range events {
+		if depth > 0 {
+			span += e.pos - lastPos
+		}
+		depth += e.delta
+		lastPos = e.pos
+	}
+	return span
 }
 
 func NewTree(all_intervals [][2]int) *IntervalTree {
