@@ -3,15 +3,17 @@ package day5
 import (
 	"fmt"
 	"slices"
+
+	mapset "github.com/deckarep/golang-set/v2"
 )
 
 // Struct that holds overlapping intervals sorted by start and by end.
-type Overlaps struct {
+type overlaps struct {
 	byStart [][2]int
 	byEnd   [][2]int
 }
 
-func newOverlaps(center_intervals [][2]int) *Overlaps {
+func newOverlaps(center_intervals [][2]int) *overlaps {
 	if len(center_intervals) == 0 {
 		return nil
 	}
@@ -25,14 +27,28 @@ func newOverlaps(center_intervals [][2]int) *Overlaps {
 	slices.SortFunc(byEnd, func(a, b [2]int) int {
 		return b[1] - a[1]
 	})
-	return &Overlaps{byStart, byEnd}
+	return &overlaps{byStart, byEnd}
 }
 
 type Node struct {
-	intervals *Overlaps // all intervals that overlap the center point of the node
+	intervals *overlaps // all intervals that overlap the center point of the node
 	center    int       // the center point
 	left      *Node     // the left node
 	right     *Node     // the right node
+}
+
+func (n *Node) iterByStart() [][2]int {
+	if n.intervals == nil {
+		return [][2]int{}
+	}
+	return n.intervals.byStart
+}
+
+func (n *Node) iterByEnd() [][2]int {
+	if n.intervals == nil {
+		return [][2]int{}
+	}
+	return n.intervals.byEnd
 }
 
 // finds all intervals that a value falls within
@@ -40,31 +56,25 @@ func (n *Node) overlaps(value int, overlaps [][2]int) [][2]int {
 	if n == nil {
 		return overlaps
 	} else if value < n.center {
-		if n.intervals != nil {
-			for _, interval := range n.intervals.byStart {
-				if interval[0] <= value {
-					overlaps = append(overlaps, interval)
-				} else {
-					break
-				}
+		for _, interval := range n.iterByStart() {
+			if interval[0] <= value {
+				overlaps = append(overlaps, interval)
+			} else {
+				break
 			}
 		}
 		return n.left.overlaps(value, overlaps)
 	} else if value > n.center {
-		if n.intervals != nil {
-			for _, interval := range n.intervals.byEnd {
-				if interval[1] >= value {
-					overlaps = append(overlaps, interval)
-				} else {
-					break
-				}
+		for _, interval := range n.iterByEnd() {
+			if interval[1] >= value {
+				overlaps = append(overlaps, interval)
+			} else {
+				break
 			}
 		}
 		return n.right.overlaps(value, overlaps)
-	} else if n.intervals != nil {
-		overlaps = append(overlaps, n.intervals.byStart...)
 	}
-	return overlaps
+	return append(overlaps, n.iterByStart()...)
 }
 
 func (n *Node) NodeString() string {
@@ -138,12 +148,17 @@ func (it *IntervalTree) Intervals(value int) [][2]int {
 }
 
 func (it *IntervalTree) IntervalSpan() int {
-	var spanTotal func(n *Node) int
-	spanTotal = func(n *Node) int {
+	uniqueIntervals := mapset.NewSet[[2]int]()
+	var findUnique func(n *Node)
+	findUnique = func(n *Node) {
 
-		return 0
 	}
-	return spanTotal(it.root)
+	findUnique(it.root)
+	spanTotal := 0
+	for interval := range uniqueIntervals.Iter() {
+		spanTotal += (interval[1] - interval[0]) + 1
+	}
+	return spanTotal
 }
 
 func NewTree(all_intervals [][2]int) *IntervalTree {
