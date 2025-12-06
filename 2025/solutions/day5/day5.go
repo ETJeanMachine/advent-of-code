@@ -28,13 +28,15 @@ func parseIntervals(str string) [][2]int {
 }
 
 func partOne(input string) string {
+	// input = "3-5\n10-14\n16-20\n12-18\n\n\n1\n5\n8\n11\n17\n32"
 	split := strings.Split(input, "\n\n")
 	intervals := parseIntervals(split[0])
 	ingredients := parseValues(split[1])
 	tree := NewTree(intervals)
 	freshCount := 0
 	for _, value := range ingredients {
-		if tree.InInterval(value) {
+		overlaps := tree.InIntervals(value)
+		if len(overlaps) > 0 {
 			freshCount += 1
 		}
 	}
