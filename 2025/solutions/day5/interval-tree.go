@@ -35,6 +35,7 @@ type Node struct {
 	right     *Node     // the right node
 }
 
+// finds all intervals that a value falls within
 func (n *Node) overlaps(value int, overlaps [][2]int) [][2]int {
 	if n == nil {
 		return overlaps
@@ -131,36 +132,15 @@ type IntervalTree struct {
 	root *Node
 }
 
-func (it *IntervalTree) InIntervals(value int) [][2]int {
+// public function for finding all intervals a value falls within
+func (it *IntervalTree) Intervals(value int) [][2]int {
 	return it.root.overlaps(value, [][2]int{})
 }
 
 func (it *IntervalTree) IntervalSpan() int {
 	var spanTotal func(n *Node) int
 	spanTotal = func(n *Node) int {
-		// if n == nil {
-		// 	return 0
-		// }
-		// start, end, err := n.fullInterval()
-		// var span int
-		// if err != nil {
-		// 	span = 0
-		// } else {
-		// 	span = (end - start) + 1
-		// }
-		// if n.left != nil {
-		// 	_, l_end, err := n.left.fullInterval()
-		// 	if err == nil && l_end >= start {
-		// 		span -= (l_end - start) + 1
-		// 	}
-		// }
-		// if n.right != nil {
-		// 	r_start, _, err := n.right.fullInterval()
-		// 	if err == nil && r_start <= end {
-		// 		span -= (end - r_start) + 1
-		// 	}
-		// }
-		// return span + spanTotal(n.left) + spanTotal(n.right)
+
 		return 0
 	}
 	return spanTotal(it.root)

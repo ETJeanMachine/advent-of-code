@@ -35,7 +35,7 @@ func partOne(input string) string {
 	tree := NewTree(intervals)
 	freshCount := 0
 	for _, value := range ingredients {
-		overlaps := tree.InIntervals(value)
+		overlaps := tree.Intervals(value)
 		if len(overlaps) > 0 {
 			freshCount += 1
 		}
