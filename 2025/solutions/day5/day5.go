@@ -34,7 +34,7 @@ func partOne(input string) string {
 	tree := NewTree(intervals)
 	freshCount := 0
 	for _, value := range ingredients {
-		if tree.InRange(value) {
+		if tree.InInterval(value) {
 			freshCount += 1
 		}
 	}
@@ -46,6 +46,7 @@ func partTwo(input string) string {
 	interval_str := strings.Split(input, "\n\n")[0]
 	intervals := parseIntervals(interval_str)
 	tree := NewTree(intervals)
+	// tree.Print()
 	return strconv.Itoa(tree.IntervalSpan())
 }
 

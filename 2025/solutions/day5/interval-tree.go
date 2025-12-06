@@ -1,19 +1,58 @@
 package day5
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-type IntervalNode struct {
-	left     *IntervalNode
-	right    *IntervalNode
-	interval [2]int
-	center   int
+type Node struct {
+	overlapping [][2]int // all intervals that overlap the center point of the node
+	center      int      // the center point
+	left        *Node    // the left node
+	right       *Node    // the right node
 }
 
-func (n *IntervalNode) NodeString() string {
-	return fmt.Sprintf("%d", n.center)
+func (n *Node) inInterval(value int) bool {
+	if n == nil {
+		return false
+	}
+	inOverlapping := false
+	for idx := range n.overlapping {
+		start, end := n.overlapping[idx][0], n.overlapping[idx][1]
+		if start <= value && value <= end {
+			inOverlapping = true
+			break
+		}
+	}
+	if inOverlapping {
+		return true
+	} else if value < n.center {
+		return n.left.inInterval(value)
+	}
+	return n.right.inInterval(value)
 }
 
-func (n *IntervalNode) PrettyPrint(prefix string, isLeft bool) {
+func (n *Node) fullInterval() (int, int, error) {
+	if len(n.overlapping) == 0 {
+		return 0, 0, errors.New("Empty overlapping set.")
+	}
+	min, max := n.overlapping[0][0], n.overlapping[0][1]
+	for idx := 1; idx < len(n.overlapping); idx++ {
+		if n.overlapping[idx][0] < min {
+			min = n.overlapping[idx][0]
+		}
+		if n.overlapping[idx][1] > max {
+			max = n.overlapping[idx][1]
+		}
+	}
+	return min, max, nil
+}
+
+func (n *Node) NodeString() string {
+	return fmt.Sprintf("%.2f", float32(n.center)/1.0e13)
+}
+
+func (n *Node) PrettyPrint(prefix string, isLeft bool) {
 	if n == nil {
 		return
 	}
@@ -71,60 +110,46 @@ func (it *IntervalTree) Print() {
 }
 
 type IntervalTree struct {
-	root *IntervalNode
+	root *Node
 }
 
-func (it *IntervalTree) InRange(value int) bool {
-	var inNodeRange func(node *IntervalNode) bool
-	inNodeRange = func(node *IntervalNode) bool {
-		if node == nil {
-			return false
-		}
-		start, end := node.interval[0], node.interval[1]
-		if start <= value && value <= end {
-			return true
-		} else if value < start {
-			return inNodeRange(node.left)
-		}
-		return inNodeRange(node.right)
-	}
-	return inNodeRange(it.root)
+func (it *IntervalTree) InInterval(value int) bool {
+	return it.root.inInterval(value)
 }
 
 func (it *IntervalTree) IntervalSpan() int {
-	var spanTotal func(node *IntervalNode, parents []*IntervalNode) int
-	spanTotal = func(node *IntervalNode, parents []*IntervalNode) int {
-		if node == nil {
+	var spanTotal func(n *Node) int
+	spanTotal = func(n *Node) int {
+		if n == nil {
 			return 0
 		}
-		start, end := node.interval[0], node.interval[1]
-		span := (end - start) + 1
-		for _, parentNode := range parents {
-			if parentNode != nil {
-				p_start, p_end := parentNode.interval[0], parentNode.interval[1]
-				if (p_start <= start && start <= p_end) && (p_start <= end && end <= p_end) {
-					span = 0
-					break
-				} else if p_start <= start && start <= p_end {
-					span -= (p_end - start) + 1
-					break
-				} else if p_start <= end && end <= p_end {
-					span -= (end - p_start) + 1
-					break
-				}
+		start, end, err := n.fullInterval()
+		var span int
+		if err != nil {
+			span = 0
+		} else {
+			span = (end - start) + 1
+		}
+		if n.left != nil {
+			_, l_end, err := n.left.fullInterval()
+			if err == nil && l_end >= start {
+				span -= (l_end - start) + 1
 			}
 		}
-		parents = append(parents, node)
-		return span +
-			spanTotal(node.left, parents) +
-			spanTotal(node.right, parents)
+		if n.right != nil {
+			r_start, _, err := n.right.fullInterval()
+			if err == nil && r_start <= end {
+				span -= (end - r_start) + 1
+			}
+		}
+		return span + spanTotal(n.left) + spanTotal(n.right)
 	}
-	return spanTotal(it.root, []*IntervalNode{})
+	return spanTotal(it.root)
 }
 
 func NewTree(all_intervals [][2]int) *IntervalTree {
-	var addIntervals func(intervals [][2]int) *IntervalNode
-	addIntervals = func(intervals [][2]int) *IntervalNode {
+	var addIntervals func(intervals [][2]int) *Node
+	addIntervals = func(intervals [][2]int) *Node {
 		if len(intervals) == 0 {
 			return nil
 		}
@@ -142,27 +167,23 @@ func NewTree(all_intervals [][2]int) *IntervalTree {
 		}
 		center := (min + max) / 2
 		left_intervals, right_intervals := [][2]int{}, [][2]int{}
-		start, end := center, center
+		overlapping := [][2]int{}
 		for idx := range intervals {
-			other_start, other_end := intervals[idx][0], intervals[idx][1]
-			if other_start <= center && center <= other_end {
-				if other_start < start {
-					start = other_start
-				}
-				if end < other_end {
-					end = other_end
-				}
-			} else if other_end < center {
+			start, end := intervals[idx][0], intervals[idx][1]
+			if start <= center && center <= end {
+				overlapping = append(overlapping, intervals[idx])
+			} else if end < center {
 				left_intervals = append(left_intervals, intervals[idx])
-			} else if center < other_start {
+			} else if center < start {
 				right_intervals = append(right_intervals, intervals[idx])
 			}
 		}
-		return &IntervalNode{
-			left:     addIntervals(left_intervals),
-			right:    addIntervals(right_intervals),
-			interval: [2]int{start, end},
-			center:   center,
+
+		return &Node{
+			overlapping: overlapping,
+			center:      center,
+			left:        addIntervals(left_intervals),
+			right:       addIntervals(right_intervals),
 		}
 	}
 	root := addIntervals(all_intervals)
