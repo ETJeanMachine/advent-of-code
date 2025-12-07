@@ -93,8 +93,9 @@ func rotateNumbers(numStrs []string, length int) []int {
 }
 
 func partTwo(input string) string {
-	// input = "123 328  51 64 \n 45 64  387 23 \n  6 98  215 314\n*   +   *   +  "
 	lines := strings.Split(input, "\n")
+	// re-adding whitespace i trimmed when fetching input :p
+	lines[len(lines)-1] += strings.Repeat(" ", len(lines[0])-len(lines[len(lines)-1]))
 	re := regexp.MustCompile(`((\+|\*) *)`)
 	operators := re.FindAll([]byte(lines[len(lines)-1]), 1000)
 	lens := []int{}
@@ -105,7 +106,7 @@ func partTwo(input string) string {
 		} else {
 			// hardcoding this bc i dont wanna fix my shit where i trim whitespace in
 			// main.go :p
-			lens = append(lens, 2)
+			lens = append(lens, len(bytes))
 		}
 		mathProblems = append(mathProblems, MathProblem{[]int{}, rune(bytes[0])})
 	}
