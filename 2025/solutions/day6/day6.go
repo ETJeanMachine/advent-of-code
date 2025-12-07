@@ -104,8 +104,6 @@ func partTwo(input string) string {
 		if idx < len(operators)-1 {
 			lens = append(lens, len(bytes)-1)
 		} else {
-			// hardcoding this bc i dont wanna fix my shit where i trim whitespace in
-			// main.go :p
 			lens = append(lens, len(bytes))
 		}
 		mathProblems = append(mathProblems, MathProblem{[]int{}, rune(bytes[0])})
