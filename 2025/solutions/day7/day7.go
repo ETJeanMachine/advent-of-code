@@ -7,20 +7,26 @@ import (
 
 func parseInput(input string) *TachyonManifold {
 	lines := strings.Split(input, "\n")
-	splitters := [][]bool{}
+	height, width := len(lines), len(lines[0])
+	splitters := make([][]bool, height)
 	var init TachyonBeam
 	for row, line := range lines {
-		splitters = append(splitters, []bool{})
-		for col, r := range line {
-			switch r {
-			case 'S':
-				init = TachyonBeam{row, col}
-				splitters[row] = append(splitters[row], false)
-			case '^':
-				splitters[row] = append(splitters[row], true)
-			default:
-				splitters[row] = append(splitters[row], false)
+		splitters[row] = make([]bool, width)
+		if row == 0 {
+			col := strings.IndexRune(line, 'S')
+			init = TachyonBeam{row, col}
+			continue
+		} else if row%2 == 1 {
+			continue
+		}
+		col := strings.IndexRune(line, '^')
+		for {
+			splitters[row][col] = true
+			to_next := strings.IndexRune(line[col+1:], '^')
+			if to_next == -1 {
+				break
 			}
+			col += to_next + 1
 		}
 	}
 	return NewManifold(init, splitters)
