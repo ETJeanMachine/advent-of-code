@@ -32,7 +32,6 @@ func partOne(input string) string {
 }
 
 func partTwo(input string) string {
-	// input = ".......S.......\n.......|.......\n......|^|......\n......|.|......\n.....|^|^|.....\n.....|.|.|.....\n....|^|^|^|....\n....|.|.|.|....\n...|^|^|||^|...\n...|.|.|||.|...\n..|^|^|||^|^|..\n..|.|.|||.|.|..\n.|^|||^||.||^|.\n.|.|||.||.||.|.\n|^|^|^|^|^|||^|\n|.|.|.|.|.|||.|"
 	manifold := parseInput(input)
 	return strconv.Itoa(manifold.CountTimelines())
 }
