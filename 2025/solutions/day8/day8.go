@@ -19,15 +19,6 @@ func parseInput(input string) []*JunctionBox {
 	return boxes
 }
 
-func numJunctionBoxes(circuit []*BoxPair) int {
-	set := make(map[*JunctionBox]bool)
-	for _, pair := range circuit {
-		set[pair.box1] = true
-		set[pair.box2] = true
-	}
-	return len(set)
-}
-
 func partOne(input string) string {
 	// input = "162,817,812\n57,618,57\n906,360,560\n592,479,940\n352,342,300\n466,668,158\n542,29,236\n431,825,988\n739,650,466\n52,470,668\n216,146,977\n819,987,18\n117,168,530\n805,96,715\n346,949,466\n970,615,88\n941,993,340\n862,61,35\n984,92,344\n425,690,689"
 	boxes := parseInput(input)
@@ -38,20 +29,20 @@ func partOne(input string) string {
 			heap.Insert(pair)
 		}
 	}
-	circuits := [][]*BoxPair{}
+	circuits := []*Circuit{}
 	min := heap.PopMin()
 	for min != nil {
 		mergeWith := []int{}
 		for i := range circuits {
-			if slices.ContainsFunc(circuits[i], min.Connected) {
+			if circuits[i].Insert(min) {
 				mergeWith = append(mergeWith, i)
 			}
 		}
-		merged := []*BoxPair{min}
-		shrunk := [][]*BoxPair{}
+		merged := NewCircuit(min)
+		shrunk := []*Circuit{}
 		prev := 0
 		for _, idx := range mergeWith {
-			merged = append(merged, circuits[idx]...)
+			merged.Extend(circuits[idx])
 			shrunk = append(shrunk, circuits[prev:idx]...)
 			prev = idx + 1
 		}
@@ -60,18 +51,21 @@ func partOne(input string) string {
 		circuits = append(circuits, merged)
 		min = heap.PopMin()
 	}
-	slices.SortFunc(circuits, func(a, b []*BoxPair) int {
-		return numJunctionBoxes(b) - numJunctionBoxes(a)
+	slices.SortFunc(circuits, func(a, b *Circuit) int {
+		return b.Size() - a.Size()
 	})
 	res := 1
 	numCircuits := slices.Min([]int{3, len(circuits)})
 	for _, circuit := range circuits[:numCircuits] {
-		res *= numJunctionBoxes(circuit)
+		res *= circuit.Size()
 	}
 	return strconv.Itoa(res)
 }
 
 func partTwo(input string) string {
+	// input = "162,817,812\n57,618,57\n906,360,560\n592,479,940\n352,342,300\n466,668,158\n542,29,236\n431,825,988\n739,650,466\n52,470,668\n216,146,977\n819,987,18\n117,168,530\n805,96,715\n346,949,466\n970,615,88\n941,993,340\n862,61,35\n984,92,344\n425,690,689"
+	// boxes := parseInput(input)
+	// heap := NewMinMaxHeap(1000)
 	return "0"
 }
 

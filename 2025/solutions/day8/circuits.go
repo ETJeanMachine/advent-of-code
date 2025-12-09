@@ -32,6 +32,42 @@ func NewBoxPair(box1 *JunctionBox, box2 *JunctionBox) *BoxPair {
 	return &BoxPair{box1, box2, box1.squareDistance(box2)}
 }
 
+// A circuit is a bunch of junction boxes connected together.
+type Circuit struct {
+	boxes map[*JunctionBox]bool
+}
+
+// Creates a new circuit containing an original pair of JB's.
+func NewCircuit(pair *BoxPair) *Circuit {
+	boxes := make(map[*JunctionBox]bool)
+	boxes[pair.box1] = true
+	boxes[pair.box2] = true
+	return &Circuit{boxes}
+}
+
+// Inserts a box pair into the circuit (only if it can be).
+func (c *Circuit) Insert(pair *BoxPair) bool {
+	if _, ok := c.boxes[pair.box1]; ok {
+		c.boxes[pair.box2] = true
+		return true
+	}
+	if _, ok := c.boxes[pair.box2]; ok {
+		c.boxes[pair.box1] = true
+		return true
+	}
+	return false
+}
+
+// Extends a circuit with another circuit.
+func (c *Circuit) Extend(o *Circuit) {
+	for jb := range o.boxes {
+		c.boxes[jb] = true
+	}
+}
+
+// Returns the number of elements in a circuit.
+func (c Circuit) Size() int { return len(c.boxes) }
+
 // A min-max heap struct for our junction boxes; capped at a size of 1000
 // and removing the largest elements as we attempt to expand it beyond 1000
 // elements.
@@ -211,9 +247,7 @@ func (h *MinMaxHeap) pushUp(i int) {
 }
 
 // Returns the size of the heap.
-func (h MinMaxHeap) Size() int {
-	return len(h.slice)
-}
+func (h MinMaxHeap) Size() int { return len(h.slice) }
 
 // Min-Max heap insertion function; but modified to allow for two addtional properties:
 //  1. Removes & destroys the largest element when the cardinality of the heap exceeds
