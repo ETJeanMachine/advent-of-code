@@ -1,6 +1,7 @@
 package day8
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -20,14 +21,19 @@ func parseInput(input string) []*JunctionBox {
 
 func partOne(input string) string {
 	boxes := parseInput(input)
-	heap := NewMinMaxHeap()
+	heap := NewMinMaxHeap(1000)
 	for idx, box1 := range boxes[:len(boxes)-1] {
 		for _, box2 := range boxes[idx+1:] {
 			pair := NewBoxPair(box1, box2)
 			heap.Insert(pair)
 		}
 	}
-	return strconv.Itoa(0)
+	min := heap.PopMin()
+	for min != nil {
+		fmt.Printf("Dist: %d, Len: %d\n", min.sqDist, heap.Size())
+		min = heap.PopMin()
+	}
+	return strconv.Itoa(heap.Size())
 }
 
 func partTwo(input string) string {
