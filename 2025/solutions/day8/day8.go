@@ -23,7 +23,7 @@ func partOne(input string) string {
 	heap := NewMinMaxHeap()
 	for idx, box1 := range boxes[:len(boxes)-1] {
 		for _, box2 := range boxes[idx+1:] {
-			pair := &BoxPair{box1, box2}
+			pair := NewBoxPair(box1, box2)
 			heap.Insert(pair)
 		}
 	}

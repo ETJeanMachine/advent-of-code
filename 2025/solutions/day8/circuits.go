@@ -6,19 +6,26 @@ type JunctionBox struct {
 	X, Y, Z int
 }
 
-type BoxPair struct {
-	box1, box2 *JunctionBox
+// The "absolute" distance between two junction boxes
+// (faster to compute than the actual straight line distance)
+func (jb *JunctionBox) Distance(o *JunctionBox) int {
+	x_diff := math.Abs(float64(jb.X - o.X))
+	y_diff := math.Abs(float64(jb.Y - o.Y))
+	z_diff := math.Abs(float64(jb.Z - o.Z))
+	return int(x_diff + y_diff + z_diff)
 }
 
-func (p *BoxPair) Distance() float64 {
-	x_diff := p.box1.X - p.box2.X
-	y_diff := p.box1.Y - p.box2.Y
-	z_diff := p.box1.Z - p.box2.Z
-	return math.Sqrt(float64(x_diff*x_diff) + float64(y_diff*y_diff) + float64(z_diff*z_diff))
+type BoxPair struct {
+	box1, box2 *JunctionBox
+	absDist    int
 }
 
 func (p *BoxPair) Connected(o *BoxPair) bool {
 	return o.box1 == p.box1 || o.box1 == p.box2 || o.box2 == p.box1 || o.box2 == p.box2
+}
+
+func NewBoxPair(box1 *JunctionBox, box2 *JunctionBox) *BoxPair {
+	return &BoxPair{box1, box2, box1.Distance(box2)}
 }
 
 type MinMaxHeap struct {
@@ -32,21 +39,65 @@ func NewMinMaxHeap() *MinMaxHeap {
 func (h *MinMaxHeap) pushUp(i int) {}
 
 func (h *MinMaxHeap) pushDn(i int) {
-	// minChildOrGrandchild := func(m int) int {
-	// 	return 0
-	// }
+	childrenAndGrandchildren := func(m int) []int {
+		children := []int{m*2 + 1, m*2 + 1}
+		for _, c := range children {
+			children = append(children, c*2+1, c*2+2)
+		}
+		idx := len(h.slice)
+		for i := range children {
+			if children[i] >= len(h.slice) {
+				idx = i
+				break
+			}
+		}
+		return children[:idx]
+	}
 
-	m := i
 	// Child nodes are stored at i*2+1 in the slice; this is just
 	// checking if there's children.
-	for m*2+1 < len(h.slice) {
-		i := m
+	m := i
+	for len(children) > 0 {
+		i = m
+		children := childrenAndGrandchildren(i)
 		// "Min" values are stored at even indices, "Max" values at odd.
 		if i%2 == 0 {
-			m = i*2 + 1
-		} else {
+			m = children[0]
+			if len(children) > 1 {
+				for _, child := range children[1:] {
+					if h.slice[m].absDist > h.slice[child].absDist {
+						m = child
+					}
+				}
+			}
+			if h.slice[m].absDist < h.slice[i].absDist {
+				tmp := *h.slice[m]
+				h.slice[m] = h.slice[i]
+				h.slice[i] = &tmp
+				if m > i*2+2 {
 
+				}
+			} else {
+				break
+			}
+		} else {
+			m = children[0]
+			if len(children) > 1 {
+				for _, child := range children[1:] {
+					if h.slice[m].absDist < h.slice[child].absDist {
+						m = child
+					}
+				}
+			}
+			if h.slice[m].absDist > h.slice[i].absDist {
+				tmp := *h.slice[m]
+				h.slice[m] = h.slice[i]
+				h.slice[i] = &tmp
+			} else {
+				break
+			}
 		}
+
 	}
 }
 
