@@ -255,7 +255,7 @@ func (h MinMaxHeap) Size() int { return len(h.slice) }
 //  2. Does not insert elements that exceed the size of the largest element when the heap
 //     is full; instead return a boolean informing the user if it was inserted or not.
 func (h *MinMaxHeap) Insert(pair *BoxPair) bool {
-	if h.Size() == h.maxSize {
+	if h.maxSize > 0 && h.Size() == h.maxSize {
 		max := h.Max()
 		if max == nil || pair.sqDist >= max.sqDist {
 			return false
