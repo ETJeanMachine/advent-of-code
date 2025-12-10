@@ -13,6 +13,38 @@ func NewLine(p1 Point, p2 Point) Line {
 	return Line{p1, p2}
 }
 
+type Rectangle struct {
+	topLeft, botRight Point
+}
+
+func NewRectangle(p1 Point, p2 Point) Rectangle {
+	minX, maxX := p1.x, p2.x
+	if p2.x < p1.x {
+		minX, maxX = p2.x, p1.x
+	}
+	minY, maxY := p1.y, p2.y
+	if p2.y < p1.y {
+		minY, maxY = p2.y, p1.y
+	}
+	topLeft := Point{minX, minY}
+	botRight := Point{maxX, maxY}
+	return Rectangle{topLeft, botRight}
+}
+
+func (r Rectangle) InRectangle(p Point) bool {
+	fitsWidth := r.topLeft.x <= p.x && p.x <= r.botRight.x
+	fitsHeight := r.topLeft.y <= p.y && p.y <= r.botRight.y
+	return fitsHeight && fitsWidth
+}
+
+func (r Rectangle) Area() int {
+	width := (r.botRight.x - r.topLeft.x) + 1
+	height := (r.botRight.y - r.topLeft.y) + 1
+	return width * height
+}
+
+type Shape struct{ rectangles []Rectangle }
+
 func (p Point) Area(o Point) int {
 	width := p.x - o.x
 	if width < 0 {
@@ -24,6 +56,21 @@ func (p Point) Area(o Point) int {
 	}
 	area := (width + 1) * (height + 1)
 	return area
+}
+
+func inBounds(lines []Line, p Point, o Point) bool {
+	alts := []Point{Point{p.x, o.y}, Point{o.x, p.y}}
+	fits := false
+	for i := 0; i < len(lines)-1; i += 2 {
+		line1, line2 := lines[i], lines[i+1]
+		rect := NewRectangle(line1.p1, line2.p2)
+		isInBounds := true
+		for _, alt := range alts {
+			isInBounds = isInBounds && rect.InRectangle(alt)
+		}
+		fits = fits != isInBounds
+	}
+	return fits
 }
 
 func parseInput(input string) []Point {
@@ -41,38 +88,16 @@ func parseInput(input string) []Point {
 func partOne(input string) string {
 	points := parseInput(input)
 	var max_area = 0
-	for idx, p := range points[:len(points)-1] {
-		for _, o := range points[idx+1:] {
-			if p.Area(o) > max_area {
-				max_area = p.Area(o)
+	for idx, p1 := range points[:len(points)-1] {
+		for _, p2 := range points[idx+1:] {
+			rect := NewRectangle(p1, p2)
+			area := rect.Area()
+			if area > max_area {
+				max_area = area
 			}
 		}
 	}
 	return strconv.Itoa(max_area)
-}
-
-func inBounds(lines []Line, p Point, o Point) bool {
-	alts := []Point{Point{p.x, o.y}, Point{o.x, p.y}}
-	fits := false
-	for i := 0; i < len(lines)-1; i += 2 {
-		line1, line2 := lines[i], lines[i+1]
-		bound1, bound2 := line1.p1, line2.p2
-		isInBounds := true
-		for _, alt := range alts {
-			if bound1.x < bound2.x {
-				isInBounds = isInBounds && bound1.x <= alt.x && alt.x <= bound2.x
-			} else {
-				isInBounds = isInBounds && bound2.x <= alt.x && alt.x <= bound1.x
-			}
-			if bound1.y < bound2.y {
-				isInBounds = isInBounds && bound1.y <= alt.y && alt.y <= bound2.y
-			} else {
-				isInBounds = isInBounds && bound2.y <= alt.y && alt.y <= bound1.y
-			}
-		}
-		fits = fits != isInBounds
-	}
-	return fits
 }
 
 func partTwo(input string) string {
