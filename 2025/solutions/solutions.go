@@ -9,6 +9,7 @@ import (
 	"advent-of-code/solutions/day6"
 	"advent-of-code/solutions/day7"
 	"advent-of-code/solutions/day8"
+	"advent-of-code/solutions/day9"
 	"log"
 )
 
@@ -30,6 +31,8 @@ func GetPuzzles(day int) (func(input string) string, func(input string) string) 
 		return day7.Puzzles()
 	case 8:
 		return day8.Puzzles()
+	case 9:
+		return day9.Puzzles()
 	default:
 		log.Fatalf("Day %d is not implemented.\n", day)
 	}
