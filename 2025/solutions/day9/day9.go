@@ -10,10 +10,7 @@ type Point struct{ x, y int }
 type Line struct{ p1, p2 Point }
 
 func NewLine(p1 Point, p2 Point) Line {
-	if p1.x < p2.x || p1.y < p2.y {
-		return Line{p1, p2}
-	}
-	return Line{p2, p1}
+	return Line{p1, p2}
 }
 
 func (p Point) Area(o Point) int {
@@ -55,23 +52,34 @@ func partOne(input string) string {
 }
 
 func inBounds(lines []Line, p Point, o Point) bool {
-	// alt_p, alt_o := Point{p.x, o.y}, Point{o.x, p.y}
+	//alt_p, alt_o := Point{p.x, o.y}, Point{o.x, p.y}
 	isInBounds := true
-	for _, line := range lines {
-		if line.p1.x == line.p2.x {
+	for i := 0; i < len(lines)-1; i += 2 {
+		line1, line2 := lines[i], lines[i+1]
+		bound1, bound2 := line1.p1, line2.p2
+		if bound1.x < bound2.x {
+			if bound1.y < bound2.y {
+
+			} else {
+
+			}
 		} else {
+			if bound1.y < bound2.y {
+			} else {
+			}
 		}
 	}
 	return isInBounds
 }
 
 func partTwo(input string) string {
-	// input = "7,1\n11,1\n11,7\n9,7\n9,5\n2,5\n2,3\n7,3"
+	input = "7,1\n11,1\n11,7\n9,7\n9,5\n2,5\n2,3\n7,3"
 	points := parseInput(input)
-	lines := []Line{NewLine(points[0], points[len(points)-1])}
-	for i := 0; i < len(points)-1; i += 2 {
+	lines := []Line{}
+	for i := range len(points) - 1 {
 		lines = append(lines, NewLine(points[i], points[i+1]))
 	}
+	lines = append(lines, NewLine(points[0], points[len(points)-1]))
 	var max_area = 0
 	for idx, p := range points[:len(points)-1] {
 		for _, o := range points[idx+1:] {
