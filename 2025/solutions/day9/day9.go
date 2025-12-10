@@ -52,24 +52,27 @@ func partOne(input string) string {
 }
 
 func inBounds(lines []Line, p Point, o Point) bool {
-	//alt_p, alt_o := Point{p.x, o.y}, Point{o.x, p.y}
-	isInBounds := true
+	alts := []Point{Point{p.x, o.y}, Point{o.x, p.y}}
+	fits := false
 	for i := 0; i < len(lines)-1; i += 2 {
 		line1, line2 := lines[i], lines[i+1]
 		bound1, bound2 := line1.p1, line2.p2
-		if bound1.x < bound2.x {
-			if bound1.y < bound2.y {
-
+		isInBounds := true
+		for _, alt := range alts {
+			if bound1.x < bound2.x {
+				isInBounds = isInBounds && bound1.x <= alt.x && alt.x <= bound2.x
 			} else {
-
+				isInBounds = isInBounds && bound2.x <= alt.x && alt.x <= bound1.x
 			}
-		} else {
 			if bound1.y < bound2.y {
+				isInBounds = isInBounds && bound1.y <= alt.y && alt.y <= bound2.y
 			} else {
+				isInBounds = isInBounds && bound2.y <= alt.y && alt.y <= bound1.y
 			}
 		}
+		fits = fits != isInBounds
 	}
-	return isInBounds
+	return fits
 }
 
 func partTwo(input string) string {
