@@ -19,10 +19,10 @@ func NewMachine(goal []bool, buttons [][]int, joltage []int) *Machine {
 	return &Machine{lights, goal, buttons, joltage}
 }
 
-func (m Machine) pressButton(idx int, lights []bool) []bool {
+func (m Machine) pressButton(idx int) []bool {
 	button := m.buttons[idx]
-	newLights := make([]bool, len(lights))
-	copy(newLights, lights)
+	newLights := make([]bool, len(m.lights))
+	copy(newLights, m.lights)
 	for _, i := range button {
 		newLights[i] = !newLights[i]
 	}
@@ -48,19 +48,18 @@ func (m *Machine) Configure() int {
 	depthQueue := []int{0}
 	goalStr := lightString(m.goal)
 	for len(queue) > 0 {
-		curr := queue[0]
-		currStr := lightString(curr)
+		m.lights = queue[0]
+		currStr := lightString(m.lights)
 		queue = queue[1:]
 
 		currDepth := depthQueue[0]
 		depthQueue = depthQueue[1:]
 
 		if currStr == goalStr {
-			m.lights = curr
 			return currDepth
 		}
 		for idx := range m.buttons {
-			next := m.pressButton(idx, curr)
+			next := m.pressButton(idx)
 			nextStr := lightString(next)
 			if _, ok := seenStates[nextStr]; !ok {
 				seenStates[nextStr] = true
