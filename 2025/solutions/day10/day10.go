@@ -19,8 +19,56 @@ func NewMachine(goal []bool, buttons [][]int, joltage []int) *Machine {
 	return &Machine{lights, goal, buttons, joltage}
 }
 
-func (m *Machine) configure() int {
-	return 0
+func (m Machine) pressButton(idx int, lights []bool) []bool {
+	button := m.buttons[idx]
+	newLights := make([]bool, len(lights))
+	copy(newLights, lights)
+	for _, i := range button {
+		newLights[i] = !newLights[i]
+	}
+	return newLights
+}
+
+func lightString(lights []bool) string {
+	lightStr := ""
+	for _, lit := range lights {
+		if lit {
+			lightStr += "#"
+		} else {
+			lightStr += "."
+		}
+	}
+	return lightStr
+}
+
+func (m *Machine) Configure() int {
+	seenStates := make(map[string]bool)
+	seenStates[lightString(m.lights)] = true
+	queue := [][]bool{m.lights}
+	depthQueue := []int{0}
+	goalStr := lightString(m.goal)
+	for len(queue) > 0 {
+		curr := queue[0]
+		currStr := lightString(curr)
+		queue = queue[1:]
+
+		currDepth := depthQueue[0]
+		depthQueue = depthQueue[1:]
+
+		if currStr == goalStr {
+			return currDepth
+		}
+		for idx := range m.buttons {
+			next := m.pressButton(idx, curr)
+			nextStr := lightString(next)
+			if _, ok := seenStates[nextStr]; !ok {
+				seenStates[nextStr] = true
+				queue = append(queue, next)
+				depthQueue = append(depthQueue, currDepth+1)
+			}
+		}
+	}
+	return -1
 }
 
 // Helper func for parsing a comma-seperated string of digits.
@@ -72,7 +120,7 @@ func partOne(input string) string {
 	machines := parseInput(input)
 	count := 0
 	for _, machine := range machines {
-		count += machine.configure()
+		count += machine.Configure()
 	}
 	return strconv.Itoa(count)
 }
