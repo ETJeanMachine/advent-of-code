@@ -56,6 +56,7 @@ func (m *Machine) Configure() int {
 		depthQueue = depthQueue[1:]
 
 		if currStr == goalStr {
+			m.lights = curr
 			return currDepth
 		}
 		for idx := range m.buttons {
