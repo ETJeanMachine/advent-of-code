@@ -32,12 +32,15 @@ func (m Machine) pressLightButton(idx int) []bool {
 	return newLights
 }
 
-func (m Machine) pressJoltButton(idx int) []int {
+func (m Machine) pressJoltButton(idx int, n int) []int {
 	button := m.buttons[idx]
 	newJolt := make([]int, len(m.joltage))
 	copy(newJolt, m.joltage)
 	for _, i := range button {
-		newJolt[i] += 1
+		newJolt[i] += n
+		if newJolt[i] > m.jolt_goal[i] {
+			return nil
+		}
 	}
 	return newJolt
 }
@@ -56,8 +59,11 @@ func lightString(lights []bool) string {
 
 func joltString(lights []int) string {
 	joltStr := ""
-	for _, jolt := range lights {
+	for idx, jolt := range lights {
 		joltStr += fmt.Sprintf("%d", jolt)
+		if idx != len(lights)-1 {
+			joltStr += "/"
+		}
 	}
 	return joltStr
 }
@@ -110,12 +116,21 @@ func (m *Machine) ConfigureJoltage() int {
 			return currDepth
 		}
 		for idx := range m.buttons {
-			next := m.pressJoltButton(idx)
-			nextStr := joltString(next)
-			if _, ok := seenStates[nextStr]; !ok {
-				seenStates[nextStr] = true
-				queue = append(queue, next)
-				depthQueue = append(depthQueue, currDepth+1)
+			firstButtonIdx := m.buttons[idx][0]
+			minJolt := m.jolt_goal[firstButtonIdx] - m.joltage[firstButtonIdx]
+			for _, i := range m.buttons[idx][1:] {
+				minJolt = min(minJolt, m.jolt_goal[i]-m.joltage[i])
+			}
+			for i := minJolt; i >= 1; i-- {
+				next := m.pressJoltButton(idx, i)
+				if next != nil {
+					nextStr := joltString(next)
+					if _, ok := seenStates[nextStr]; !ok {
+						seenStates[nextStr] = true
+						queue = append(queue, next)
+						depthQueue = append(depthQueue, currDepth+i)
+					}
+				}
 			}
 		}
 	}
