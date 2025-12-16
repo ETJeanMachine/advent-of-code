@@ -63,8 +63,7 @@ func run_day(day int) {
 	// current set timeout (in seconds)
 	timeout := 15 * time.Second
 	// Part One with timeout
-	res_one, elapsed, timedOut := run_with_timeout(part_one, input, timeout)
-	if timedOut {
+	if res_one, elapsed, timedOut := run_with_timeout(part_one, input, timeout); timedOut {
 		fmt.Printf("Part One: TIMEOUT (exceeded %s)\n\n", format_duration(timeout))
 	} else {
 		fmt.Printf("Part One: %s\n", res_one)
@@ -72,8 +71,7 @@ func run_day(day int) {
 	}
 
 	// Part Two with timeout
-	res_two, elapsed, timedOut := run_with_timeout(part_two, input, timeout)
-	if timedOut {
+	if res_two, elapsed, timedOut := run_with_timeout(part_two, input, timeout); timedOut {
 		fmt.Printf("Part Two: TIMEOUT (exceeded %s)\n", format_duration(timeout))
 	} else {
 		fmt.Printf("Part Two: %s\n", res_two)
