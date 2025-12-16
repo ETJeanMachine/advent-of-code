@@ -3,6 +3,7 @@ package main
 import (
 	"advent-of-code/solutions"
 	"cmp"
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -59,17 +60,45 @@ func run_day(day int) {
 
 	fmt.Printf("Advent of Code 2025 Day %d\n", day)
 
+	// Part One with timeout
 	now := time.Now()
-	res_one := part_one(input)
+	res_one, timedOut := run_with_timeout(part_one, input, 20*time.Second)
 	time_one := time.Since(now)
-	fmt.Printf("Part One: %s\n", res_one)
+	if timedOut {
+		fmt.Printf("Part One: TIMEOUT (exceeded 20s)\n")
+	} else {
+		fmt.Printf("Part One: %s\n", res_one)
+	}
 	fmt.Printf("Time One: %s\n\n", format_duration(time_one))
 
+	// Part Two with timeout
 	now = time.Now()
-	res_two := part_two(input)
+	res_two, timedOut := run_with_timeout(part_two, input, 20*time.Second)
 	time_two := time.Since(now)
-	fmt.Printf("Part Two: %s\n", res_two)
+	if timedOut {
+		fmt.Printf("Part Two: TIMEOUT (exceeded 20s)\n")
+	} else {
+		fmt.Printf("Part Two: %s\n", res_two)
+	}
 	fmt.Printf("Time Two: %s\n", format_duration(time_two))
+}
+
+func run_with_timeout(puzzle func(string) string, input string, timeout time.Duration) (string, bool) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	resultChan := make(chan string, 1)
+
+	go func() {
+		resultChan <- puzzle(input)
+	}()
+
+	select {
+	case result := <-resultChan:
+		return result, false
+	case <-ctx.Done():
+		return "", true
+	}
 }
 
 func benchmark_day(day int) {
