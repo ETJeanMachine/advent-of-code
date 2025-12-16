@@ -60,44 +60,43 @@ func run_day(day int) {
 
 	fmt.Printf("Advent of Code 2025 Day %d\n", day)
 
+	// current set timeout (in seconds)
+	timeout := 15 * time.Second
 	// Part One with timeout
-	now := time.Now()
-	res_one, timedOut := run_with_timeout(part_one, input, 20*time.Second)
-	time_one := time.Since(now)
+	res_one, elapsed, timedOut := run_with_timeout(part_one, input, timeout)
 	if timedOut {
-		fmt.Printf("Part One: TIMEOUT (exceeded 20s)\n")
+		fmt.Printf("Part One: TIMEOUT (exceeded %s)\n\n", format_duration(timeout))
 	} else {
 		fmt.Printf("Part One: %s\n", res_one)
+		fmt.Printf("Time One: %s\n\n", format_duration(elapsed))
 	}
-	fmt.Printf("Time One: %s\n\n", format_duration(time_one))
 
 	// Part Two with timeout
-	now = time.Now()
-	res_two, timedOut := run_with_timeout(part_two, input, 20*time.Second)
-	time_two := time.Since(now)
+	res_two, elapsed, timedOut := run_with_timeout(part_two, input, timeout)
 	if timedOut {
-		fmt.Printf("Part Two: TIMEOUT (exceeded 20s)\n")
+		fmt.Printf("Part Two: TIMEOUT (exceeded %s)\n", format_duration(timeout))
 	} else {
 		fmt.Printf("Part Two: %s\n", res_two)
+		fmt.Printf("Time Two: %s\n", format_duration(elapsed))
 	}
-	fmt.Printf("Time Two: %s\n", format_duration(time_two))
 }
 
-func run_with_timeout(puzzle func(string) string, input string, timeout time.Duration) (string, bool) {
+func run_with_timeout(puzzle func(string) string, input string, timeout time.Duration) (string, time.Duration, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	resultChan := make(chan string, 1)
 
+	start := time.Now()
 	go func() {
 		resultChan <- puzzle(input)
 	}()
 
 	select {
 	case result := <-resultChan:
-		return result, false
+		return result, time.Since(start), false
 	case <-ctx.Done():
-		return "", true
+		return "", 0, true
 	}
 }
 
