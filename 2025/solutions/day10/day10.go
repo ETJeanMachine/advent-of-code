@@ -1,6 +1,7 @@
 package day10
 
 import (
+	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -8,18 +9,20 @@ import (
 )
 
 type Machine struct {
-	lights  []bool
-	goal    []bool
-	buttons [][]int
-	joltage []int
+	lights    []bool
+	goal      []bool
+	buttons   [][]int
+	joltage   []int
+	jolt_goal []int
 }
 
-func NewMachine(goal []bool, buttons [][]int, joltage []int) *Machine {
+func NewMachine(goal []bool, buttons [][]int, jolt_goal []int) *Machine {
 	lights := make([]bool, len(goal))
-	return &Machine{lights, goal, buttons, joltage}
+	joltage := make([]int, len(jolt_goal))
+	return &Machine{lights, goal, buttons, joltage, jolt_goal}
 }
 
-func (m Machine) pressButton(idx int) []bool {
+func (m Machine) pressLightButton(idx int) []bool {
 	button := m.buttons[idx]
 	newLights := make([]bool, len(m.lights))
 	copy(newLights, m.lights)
@@ -27,6 +30,16 @@ func (m Machine) pressButton(idx int) []bool {
 		newLights[i] = !newLights[i]
 	}
 	return newLights
+}
+
+func (m Machine) pressJoltButton(idx int) []int {
+	button := m.buttons[idx]
+	newJolt := make([]int, len(m.joltage))
+	copy(newJolt, m.joltage)
+	for _, i := range button {
+		newJolt[i] += 1
+	}
+	return newJolt
 }
 
 func lightString(lights []bool) string {
@@ -41,7 +54,15 @@ func lightString(lights []bool) string {
 	return lightStr
 }
 
-func (m *Machine) Configure() int {
+func joltString(lights []int) string {
+	joltStr := ""
+	for _, jolt := range lights {
+		joltStr += fmt.Sprintf("%d", jolt)
+	}
+	return joltStr
+}
+
+func (m *Machine) ConfigureLights() int {
 	seenStates := make(map[string]bool)
 	seenStates[lightString(m.lights)] = true
 	queue := [][]bool{m.lights}
@@ -59,8 +80,38 @@ func (m *Machine) Configure() int {
 			return currDepth
 		}
 		for idx := range m.buttons {
-			next := m.pressButton(idx)
+			next := m.pressLightButton(idx)
 			nextStr := lightString(next)
+			if _, ok := seenStates[nextStr]; !ok {
+				seenStates[nextStr] = true
+				queue = append(queue, next)
+				depthQueue = append(depthQueue, currDepth+1)
+			}
+		}
+	}
+	return -1
+}
+
+func (m *Machine) ConfigureJoltage() int {
+	seenStates := make(map[string]bool)
+	seenStates[joltString(m.joltage)] = true
+	queue := [][]int{m.joltage}
+	depthQueue := []int{0}
+	goalStr := joltString(m.jolt_goal)
+	for len(queue) > 0 {
+		m.joltage = queue[0]
+		currStr := joltString(m.joltage)
+		queue = queue[1:]
+
+		currDepth := depthQueue[0]
+		depthQueue = depthQueue[1:]
+
+		if currStr == goalStr {
+			return currDepth
+		}
+		for idx := range m.buttons {
+			next := m.pressJoltButton(idx)
+			nextStr := joltString(next)
 			if _, ok := seenStates[nextStr]; !ok {
 				seenStates[nextStr] = true
 				queue = append(queue, next)
@@ -120,13 +171,18 @@ func partOne(input string) string {
 	machines := parseInput(input)
 	count := 0
 	for _, machine := range machines {
-		count += machine.Configure()
+		count += machine.ConfigureLights()
 	}
 	return strconv.Itoa(count)
 }
 
 func partTwo(input string) string {
-	return "0"
+	machines := parseInput(input)
+	count := 0
+	for _, machine := range machines {
+		count += machine.ConfigureJoltage()
+	}
+	return strconv.Itoa(count)
 }
 
 func Puzzles() (func(string) string, func(string) string) {
